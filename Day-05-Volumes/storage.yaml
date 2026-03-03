@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-hard-drive
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage-app
+  template:
+    metadata:
+      labels:
+        app: storage-app
+    spec:
+      containers:
+      - name: my-container
+        image: nginx:alpine
+        volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: secret-storage
+      volumes:
+      - name: secret-storage
+        persistentVolumeClaim:
+          claimName: my-hard-drive
