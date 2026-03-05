@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-settings
+data:
+  LANGUAGE: "English"
+  GREETING: "Welcome to Day 6, Docker Master!"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: config-demo-pod
+spec:
+  containers:
+    - name: test-container
+      image: alpine
+      command: ["sleep", "3600"] # Keeps the pod awake so we can look inside
+      envFrom:
+        - configMapRef:
+            name: app-settings
