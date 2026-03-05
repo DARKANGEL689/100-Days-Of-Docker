@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: game-settings
+data:
+  game.properties: |
+    difficulty=hard
+    max_players=100
+    theme=dark_mode
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: config-file-pod
+spec:
+  containers:
+    - name: test-container
+      image: alpine
+      command: ["sleep", "3600"]
+      volumeMounts:
+      - name: config-volume
+        mountPath: "/etc/game-config" 
+  volumes:
+    - name: config-volume
+      configMap:
+        name: game-settings
