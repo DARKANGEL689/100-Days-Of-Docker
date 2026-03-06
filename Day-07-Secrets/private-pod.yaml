@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-image-pod
+spec:
+  containers:
+    - name: app
+      image: nginx:alpine 
+  imagePullSecrets:
+    - name: my-registry-key 
