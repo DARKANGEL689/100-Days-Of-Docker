@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-hog
+spec:
+  containers:
+  - name: hog-container
+    image: alpine
+    command: ["/bin/sh", "-c", "a=a; while true; do a=$a$a; done"]
+    resources:
+      requests:
+        memory: "10Mi"
+      limits:
+        memory: "50Mi" 

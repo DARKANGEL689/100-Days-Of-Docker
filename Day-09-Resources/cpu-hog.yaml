@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-hog
+spec:
+  containers:
+  - name: hog-container
+    image: alpine
+    command: ["/bin/sh", "-c", "while true; do true; done"]
+    resources:
+      requests:
+        cpu: "100m"
+      limits:
+        cpu: "200m"

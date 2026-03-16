@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: junior-dev-limit
+spec:
+  hard:
+    requests.cpu: "1"       
+    requests.memory: 1Gi    
+    limits.cpu: "2"
+    limits.memory: 2Gi
+    pods: "5"               
