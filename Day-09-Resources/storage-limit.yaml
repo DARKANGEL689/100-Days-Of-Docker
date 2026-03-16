@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: storage-hog
+spec:
+  containers:
+  - name: hog-container
+    image: alpine
+    command: ["/bin/sh", "-c", "dd if=/dev/zero of=/tmp/junkfile bs=1M count=100; sleep 3600"]
+    resources:
+      limits:
+        ephemeral-storage: "50Mi" 

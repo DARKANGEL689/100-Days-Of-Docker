@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: denied-pod
+spec:
+  containers:
+  - name: heavy-app
+    image: alpine
+    command: ["sleep", "3600"]
+    resources:
+      requests:
+        cpu: "5" 
