@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ratelimit-router
+  annotations:
+    nginx.ingress.kubernetes.io/limit-rps: "1"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /limited
+        pathType: Prefix
+        backend:
+          service:
+            name: video-service
+            port:
+              number: 80
