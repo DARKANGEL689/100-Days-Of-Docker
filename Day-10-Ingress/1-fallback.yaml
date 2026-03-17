@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fallback-router
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: search-service
+      port:
+        number: 80
