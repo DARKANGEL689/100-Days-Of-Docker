@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-app
+spec:
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        command: ["/bin/sh", "-c", "echo '<h1>Welcome to the SEARCH Backend!</h1>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-service
+spec:
+  selector:
+    app: search
+  ports:
+    - port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-app
+spec:
+  selector:
+    matchLabels:
+      app: video
+  template:
+    metadata:
+      labels:
+        app: video
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        command: ["/bin/sh", "-c", "echo '<h1>Welcome to the VIDEO Backend!</h1>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-service
+spec:
+  selector:
+    app: video
+  ports:
+    - port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-router
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /search
+        pathType: Prefix
+        backend:
+          service:
+            name: search-service
+            port:
+              number: 80
+      - path: /video
+        pathType: Prefix
+        backend:
+          service:
+            name: video-service
+            port:
+              number: 80
