@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ha-php-apache
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: ha-php
+  template:
+    metadata:
+      labels:
+        run: ha-php
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: run
+                operator: In
+                values:
+                - ha-php
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: php-apache
+        image: registry.k8s.io/hpa-example
+        resources:
+          requests:
+            cpu: 200m
