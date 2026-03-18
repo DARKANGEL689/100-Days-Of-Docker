@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nightly-spike
+spec:
+  schedule: "0 0 * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: spiker
+            image: busybox:1.28
+            command: ["/bin/sh", "-c", "wget -q -O- http://php-apache"]
+          restartPolicy: OnFailure
