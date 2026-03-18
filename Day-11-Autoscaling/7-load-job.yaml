@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-tester-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: load-tester
+        image: busybox:1.28
+        command: ["/bin/sh", "-c", "for i in $(seq 1 10000); do wget -q -O- http://php-apache; done"]
+      restartPolicy: Never
