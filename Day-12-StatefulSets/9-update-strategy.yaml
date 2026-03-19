@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: safe-update-vault
+spec:
+  serviceName: "db-service"
+  updateStrategy:
+    type: OnDelete 
+  replicas: 2
+  selector:
+    matchLabels:
+      app: safe
+  template:
+    metadata:
+      labels:
+        app: safe
+    spec:
+      containers:
+      - name: app
+        image: alpine
+        command: ["sleep", "3600"]
