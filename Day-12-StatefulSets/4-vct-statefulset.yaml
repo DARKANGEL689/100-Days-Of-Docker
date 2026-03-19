@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-vault
+spec:
+  serviceName: "db-service"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: storage-container
+        image: alpine
+        command: ["sleep", "3600"]
+        volumeMounts:
+        - name: dedicated-storage
+          mountPath: /var/lib/data
+  volumeClaimTemplates: 
+  - metadata:
+      name: dedicated-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Mi
