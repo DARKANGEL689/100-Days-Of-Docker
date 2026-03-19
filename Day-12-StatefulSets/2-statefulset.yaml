@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-node
+spec:
+  serviceName: "db-service" 
+  replicas: 2
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+      - name: main-db
+        image: nginx:alpine 
+        ports:
+        - containerPort: 80
