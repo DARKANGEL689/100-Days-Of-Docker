@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: secure-db
+spec:
+  serviceName: "db-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-db
+  template:
+    metadata:
+      labels:
+        app: secure-db
+    spec:
+      containers:
+      - name: main-database
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'CRITICAL FAANG USER DATA' > /var/lib/data/db.txt && sleep 3600"]
+        volumeMounts:
+        - name: db-storage
+          mountPath: /var/lib/data
+          
+      - name: backup-sidecar
+        image: busybox
+        command: ["/bin/sh", "-c", "while true; do tar -czf /var/lib/data/backup-$(date +%s).tar.gz /var/lib/data/db.txt; sleep 30; done"]
+        volumeMounts:
+        - name: db-storage
+          mountPath: /var/lib/data
+          
+  volumeClaimTemplates:
+  - metadata:
+      name: db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Mi
