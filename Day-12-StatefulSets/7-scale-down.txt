@@ -1,0 +1,1 @@
+Scaled down to 2 replicas. Verified PVCs 2 and 3 were retained for data safety.
