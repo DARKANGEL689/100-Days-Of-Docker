@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fast-vault
+spec:
+  serviceName: "db-service"
+  podManagementPolicy: Parallel 
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fast
+  template:
+    metadata:
+      labels:
+        app: fast
+    spec:
+      containers:
+      - name: app
+        image: alpine
+        command: ["sleep", "3600"]
