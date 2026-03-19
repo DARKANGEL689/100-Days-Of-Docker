@@ -1,0 +1,9 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: premium-fast-ssd
+provisioner: docker.io/hostpath 
+parameters:
+  type: gp3 
+reclaimPolicy: Retain
+allowVolumeExpansion: true 
