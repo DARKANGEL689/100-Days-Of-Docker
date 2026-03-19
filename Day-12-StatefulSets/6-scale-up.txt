@@ -1,0 +1,1 @@
+Scaled to 4 replicas. Observed strict ordinal booting (0, 1, 2, 3).
