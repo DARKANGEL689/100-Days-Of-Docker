@@ -1,0 +1,1 @@
+Verified VCT automatically generated dedicated PVCs per pod.
