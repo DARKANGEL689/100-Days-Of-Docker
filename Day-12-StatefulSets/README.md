@@ -1,8 +1,10 @@
-# Day 12: Stateful Architecture and Data Persistence
+echo '# Day 12: Stateful Architecture and Data Persistence
 
-Today, I engineered the required infrastructure to host stateful databases (like MySQL/Redis) natively inside Kubernetes.
+Today, I engineered the required infrastructure to host stateful databases natively inside Kubernetes.
 
-## Core Concepts Mastered:
-1. **Network Identity:** Implemented Headless Services to bypass load balancers and provide direct, sticky DNS names to individual nodes (`db-0`, `db-1`).
-2. **Dynamic Provisioning:** Utilized `volumeClaimTemplates` to automatically generate dedicated Persistent Volume Claims for every new replica.
-3. **Topology Control:** Managed strictly ordered scale-up and scale-down procedures, verified data retention upon pod termination, and implemented `Parallel` execution policies for faster booting.
+## Core Concepts Mastered (15 Contributions):
+1. **Network Identity:** Implemented Headless Services for sticky DNS (`db-0`, `db-1`).
+2. **Dynamic Storage:** Utilized `volumeClaimTemplates` and custom `StorageClasses` for premium automated provisioning.
+3. **Topology Control:** Managed ordered scale-ups, Parallel policies, and `OnDelete` update strategies.
+4. **Resilience & Security:** Deployed `PodDisruptionBudgets` to block cluster maintenance downtime, and `InitContainers` for secure bootstrapping.
+5. **Advanced Patterns:** Executed Partitioned Canary database upgrades and deployed multi-container Pods using the Sidecar Pattern for automated data backups.' > README.md
