@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bootstrapped-db
+spec:
+  serviceName: "db-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boot-db
+  template:
+    metadata:
+      labels:
+        app: boot-db
+    spec:
+      initContainers:
+      - name: setup-data-folder
+        image: busybox
+        command: ['sh', '-c', 'echo "Database Successfully Initialized by InitContainer!" > /var/lib/data/status.txt']
+        volumeMounts:
+        - name: db-storage
+          mountPath: /var/lib/data
+      containers:
+      - name: main-database
+        image: alpine
+        command: ["sleep", "3600"]
+        volumeMounts:
+        - name: db-storage
+          mountPath: /var/lib/data
+  volumeClaimTemplates:
+  - metadata:
+      name: db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Mi
