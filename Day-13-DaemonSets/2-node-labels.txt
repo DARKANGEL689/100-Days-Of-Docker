@@ -1,0 +1,1 @@
+Applied 'hardware-type=gpu' label to cluster node for targeted scheduling
