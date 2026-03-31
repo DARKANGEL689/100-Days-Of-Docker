@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: real-log-collector
+spec:
+  selector:
+    matchLabels:
+      app: var-log
+  template:
+    metadata:
+      labels:
+        app: var-log
+    spec:
+      containers:
+      - name: log-reader
+        image: alpine
+        command: ["/bin/sh", "-c", "tail -f /var/log/messages || sleep 3600"]
+        volumeMounts:
+        - name: physical-server-logs
+          mountPath: /var/log
+          readOnly: true
+      volumes:
+      - name: physical-server-logs
+        hostPath:
+          path: /var/log 
