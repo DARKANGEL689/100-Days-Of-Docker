@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: gpu-monitor
+spec:
+  selector:
+    matchLabels:
+      app: gpu-agent
+  template:
+    metadata:
+      labels:
+        app: gpu-agent
+    spec:
+      nodeSelector:
+        hardware-type: gpu 
+      containers:
+      - name: nvidia-monitor
+        image: alpine
+        command: ["sleep", "3600"]
