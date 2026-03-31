@@ -1,0 +1,1 @@
+Verified DaemonSet rollout history is tracked for instant rollback capabilities using 'kubectl rollout undo'
