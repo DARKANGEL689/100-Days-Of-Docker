@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: master-node-monitor
+spec:
+  selector:
+    matchLabels:
+      app: master-agent
+  template:
+    metadata:
+      labels:
+        app: master-agent
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: control-plane-tracker
+        image: alpine
+        command: ["sleep", "3600"]
