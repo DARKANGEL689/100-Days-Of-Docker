@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: careful-updater
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1 
+  selector:
+    matchLabels:
+      app: careful
+  template:
+    metadata:
+      labels:
+        app: careful
+    spec:
+      containers:
+      - name: agent
+        image: alpine
+        command: ["sleep", "3600"]
