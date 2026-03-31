@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: network-security-agent
+spec:
+  selector:
+    matchLabels:
+      app: net-sec
+  template:
+    metadata:
+      labels:
+        app: net-sec
+    spec:
+      hostNetwork: true 
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: packet-sniffer
+        image: alpine
+        command: ["sleep", "3600"]
