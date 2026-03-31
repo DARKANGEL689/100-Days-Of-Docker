@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: untouchable-agent
+spec:
+  selector:
+    matchLabels:
+      app: untouchable
+  template:
+    metadata:
+      labels:
+        app: untouchable
+    spec:
+      priorityClassName: system-node-critical 
+      containers:
+      - name: agent
+        image: alpine
+        command: ["sleep", "3600"]
