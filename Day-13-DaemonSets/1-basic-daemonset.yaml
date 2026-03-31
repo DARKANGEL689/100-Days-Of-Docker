@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: global-logger
+spec:
+  selector:
+    matchLabels:
+      app: system-logger
+  template:
+    metadata:
+      labels:
+        app: system-logger
+    spec:
+      containers:
+      - name: log-collector
+        image: busybox
+        command: ["/bin/sh", "-c", "while true; do echo 'Collecting logs from node...'; sleep 10; done"]
