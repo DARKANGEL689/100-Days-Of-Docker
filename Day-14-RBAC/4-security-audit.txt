@@ -1,0 +1,1 @@
+Executed 'kubectl auth can-i' impersonation tests. Verified 'get pods' = yes, 'delete statefulsets' = no.
