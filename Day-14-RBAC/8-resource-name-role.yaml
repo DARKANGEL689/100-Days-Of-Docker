@@ -1,0 +1,10 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: specific-pod-restarter
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  resourceNames: ["payment-gateway-pod"] 
+  verbs: ["get", "delete"]
