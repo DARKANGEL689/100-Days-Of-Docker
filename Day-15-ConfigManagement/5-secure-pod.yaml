@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-db-app
+spec:
+  containers:
+  - name: app
+    image: alpine
+    command: ["sleep", "3600"]
+    env:
+    - name: DB_PASS 
+      valueFrom:
+        secretKeyRef:
+          name: db-credentials
+          key: password 
