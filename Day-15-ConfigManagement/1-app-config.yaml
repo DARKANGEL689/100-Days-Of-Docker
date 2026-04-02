@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-settings
+data:
+  THEME_COLOR: "dark-mode"
+  API_ENDPOINT: "https://api.mycompany.com/v1"
+  ENABLE_BETA_FEATURES: "true"
