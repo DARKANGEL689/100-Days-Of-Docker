@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: paranoid-app
+spec:
+  containers:
+  - name: app
+    image: alpine
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: secret-vol
+      mountPath: /etc/secrets
+  volumes:
+  - name: secret-vol
+    secret:
+      secretName: db-credentials
+      defaultMode: 0400 
