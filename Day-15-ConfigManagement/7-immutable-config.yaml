@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frozen-settings
+immutable: true 
+data:
+  CLUSTER_REGION: "us-east-1"
