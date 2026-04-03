@@ -6,3 +6,4 @@ data:
   {{- range .Values.appEnvVars }}
   {{ .key }}: {{ .value | quote }}
   {{- end }}
+  CLUSTER_ADMIN: {{ .Values.adminName | default "system-bot" | quote }}
