@@ -7,3 +7,5 @@ data:
   {{ .key }}: {{ .value | quote }}
   {{- end }}
   CLUSTER_ADMIN: {{ .Values.adminName | default "system-bot" | quote }}
+  RELEASE_NAME: {{ .Release.Name }}
+  NAMESPACE: {{ .Release.Namespace }}
