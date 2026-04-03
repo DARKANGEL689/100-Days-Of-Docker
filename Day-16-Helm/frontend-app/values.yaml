@@ -161,3 +161,9 @@ tolerations: []
 affinity: {}
 
 enableSecret: true
+
+appEnvVars:
+  - key: THEME
+    value: "dark"
+  - key: REGION
+    value: "us-east-1"
