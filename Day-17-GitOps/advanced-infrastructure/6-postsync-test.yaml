@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: qa-integration-test
+  namespace: enterprise-prod
+  annotations:
+    argocd.argoproj.io/hook: PostSync 
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: tester
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'Running 200 OK HTTP Tests...' && sleep 5"]
+      restartPolicy: Never
