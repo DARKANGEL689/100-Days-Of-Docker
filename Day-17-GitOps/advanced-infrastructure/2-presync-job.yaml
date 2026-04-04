@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-job
+  namespace: enterprise-prod
+  annotations:
+    argocd.argoproj.io/hook: PreSync 
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded 
+spec:
+  template:
+    spec:
+      containers:
+      - name: migrator
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'Simulating Database Schema Upgrade...' && sleep 10"]
+      restartPolicy: Never
