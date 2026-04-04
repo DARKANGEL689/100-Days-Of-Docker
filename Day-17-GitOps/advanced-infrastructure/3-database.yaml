@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-database
+  namespace: enterprise-prod
+  annotations:
+    argocd.argoproj.io/sync-wave: "0" 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
