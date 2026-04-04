@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: critical-data-pvc
+  namespace: enterprise-prod
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
