@@ -10,3 +10,10 @@ Identifies pods that are hitting their CPU limits and being throttled by Kuberne
 
 **3. Memory Saturation:**
 `container_memory_working_set_bytes / container_spec_memory_limit_bytes > 0.85`
+**4. Pod CrashLoopBackOff Detection:**
+Finds pods that are repeatedly crashing and restarting.
+`kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"} > 0`
+
+**5. PVC Storage Exhaustion:**
+Triggers when a StatefulSet hard drive is 90% full.
+`kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes > 0.9`
