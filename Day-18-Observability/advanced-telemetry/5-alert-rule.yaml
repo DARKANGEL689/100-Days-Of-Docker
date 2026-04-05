@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: high-traffic-alert
+  namespace: monitoring
+  labels:
+    release: cluster-metrics
+spec:
+  groups:
+  - name: traffic.rules
+    rules:
+    - alert: HighTrafficSpike
+      expr: rate(http_requests_total[1m]) > 10 
+      for: 1m 
+      labels:
+        severity: critical
+      annotations:
+        summary: "Instance {{ $labels.instance }} under heavy load"
+        description: "App is receiving more than 10 req/sec over the last minute."
