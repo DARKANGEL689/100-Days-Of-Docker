@@ -1,0 +1,1 @@
+Generated high-velocity synthetic traffic to validate PrometheusRule thresholds.
