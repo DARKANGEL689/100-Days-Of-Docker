@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: global-router
+  namespace: monitoring
+spec:
+  route:
+    groupBy: ['alertname']
+    groupWait: 30s 
+    groupInterval: 5m
+    repeatInterval: 1h
+    receiver: 'discord-webhook'
+  receivers:
+  - name: 'discord-webhook'
+    webhookConfigs:
+    - url: 'http://dummy-webhook.default.svc/alerts'
