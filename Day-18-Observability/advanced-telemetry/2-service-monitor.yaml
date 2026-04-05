@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: podinfo-monitor
+  namespace: monitoring
+  labels:
+    release: cluster-metrics 
+spec:
+  selector:
+    matchLabels:
+      app: podinfo
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: http
+    interval: 15s
+    path: /metrics
