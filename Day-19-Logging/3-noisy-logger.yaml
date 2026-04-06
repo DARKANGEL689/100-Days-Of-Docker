@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noisy-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noisy-logger
+  template:
+    metadata:
+      labels:
+        app: noisy-logger
+    spec:
+      containers:
+      - name: logger
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+            while true; do
+              echo '{"level":"info","path":"/api/login","status":200,"ms":45}';
+              sleep 2;
+              echo '{"level":"error","path":"/api/checkout","status":500,"error":"DB_TIMEOUT"}';
+              sleep 3;
+            done
