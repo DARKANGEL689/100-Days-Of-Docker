@@ -1,0 +1,1 @@
+Deployed Loki log aggregation system and Promtail DaemonSet via Helm
