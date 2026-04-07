@@ -1,8 +1,11 @@
-# Day 20: Edge Routing and NGINX Ingress
+# Day 20: Advanced API Gateway & NGINX Ingress
 
-Today marks the 20% milestone of the 100-day journey. I eliminated the need for fragile `port-forwarding` by architecting a production-grade entry point for my cluster.
+Today marks the 20% milestone of the 100-day journey. I eliminated `port-forwarding` by architecting an enterprise-grade API Gateway using NGINX Ingress, complete with Layer 7 routing and edge security.
 
-## Architecture Implemented:
-1. **Edge Controller:** Deployed the `NGINX Ingress Controller` to act as the cluster's reverse proxy and Layer 7 traffic router.
-2. **DNS Resolution:** Engineered local DNS overrides (`/etc/hosts`) to resolve custom domains (`grafana.local`, `argocd.local`) to the local loopback adapter.
-3. **Declarative Routing:** Authored `Ingress` Kubernetes resources to dynamically map HTTP Host headers to internal ClusterIP services.
+## Architecture & Security Implemented:
+1. **Edge Controller:** Deployed the `NGINX Ingress Controller` as a centralized reverse proxy.
+2. **Local FQDNs:** Engineered local DNS overrides (`/etc/hosts`) to resolve `grafana.local` to the loopback adapter.
+3. **Fan-Out Multiplexing:** Configured path-based routing to serve multiple distinct microservices (`/` and `/api`) from a single domain.
+4. **DDoS Mitigation:** Implemented `limit-rps` annotations to automatically block high-frequency request spam.
+5. **Payload Restrictions:** Configured `proxy-body-size` limits to protect internal services from buffer overflow attacks.
+6. **CORS Enforcement:** Hardened Cross-Origin Resource Sharing policies to prevent malicious cross-site requests.
