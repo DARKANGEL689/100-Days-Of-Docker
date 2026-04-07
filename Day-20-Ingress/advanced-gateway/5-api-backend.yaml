@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-api
+  namespace: monitoring 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo
+        args: ["-text=Welcome to the Secure Billing API"]
+        ports:
+        - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-service
+  namespace: monitoring
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: billing
