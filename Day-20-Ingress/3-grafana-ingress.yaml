@@ -16,3 +16,10 @@ spec:
             name: cluster-metrics-grafana
             port:
               number: 80
+      - path: /api 
+        pathType: Prefix
+        backend:
+          service:
+            name: billing-service
+            port:
+              number: 80
