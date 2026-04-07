@@ -1,0 +1,1 @@
+Configured local DNS resolution via Windows hosts file
