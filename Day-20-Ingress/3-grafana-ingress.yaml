@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: grafana-ingress
   namespace: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/limit-rps: "2"
 spec:
   ingressClassName: nginx
   rules:
