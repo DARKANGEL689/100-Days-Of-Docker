@@ -5,6 +5,7 @@ metadata:
   namespace: monitoring
   annotations:
     nginx.ingress.kubernetes.io/limit-rps: "2"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
 spec:
   ingressClassName: nginx
   rules:
