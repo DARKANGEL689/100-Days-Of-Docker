@@ -1,0 +1,22 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: enterprise-grafana-cert
+  namespace: monitoring
+spec:
+  secretName: grafana-tls-cert-explicit 
+  duration: 2160h 
+  renewBefore: 360h 
+  subject:
+    organizations:
+      - 100-Days-Of-Docker
+  commonName: grafana.local
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  issuerRef:
+    name: local-selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
