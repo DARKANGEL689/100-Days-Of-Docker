@@ -8,6 +8,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
     cert-manager.io/cluster-issuer: "local-selfsigned-issuer"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true" 
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
 spec:
   ingressClassName: nginx
   tls:
