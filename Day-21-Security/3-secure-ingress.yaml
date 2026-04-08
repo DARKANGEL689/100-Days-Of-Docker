@@ -6,7 +6,8 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/limit-rps: "2"
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
-    cert-manager.io/cluster-issuer: "local-selfsigned-issuer" 
+    cert-manager.io/cluster-issuer: "local-selfsigned-issuer"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true" 
 spec:
   ingressClassName: nginx
   tls:
