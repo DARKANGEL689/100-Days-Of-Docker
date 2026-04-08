@@ -1,0 +1,1 @@
+Deployed cert-manager for automated TLS/SSL lifecycle management
