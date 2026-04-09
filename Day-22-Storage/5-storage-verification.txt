@@ -1,0 +1,1 @@
+Verified dynamic storage provisioning and PVC binding
