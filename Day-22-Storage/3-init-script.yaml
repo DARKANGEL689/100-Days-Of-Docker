@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: default
+data:
+  init.sql: |-
+    CREATE TABLE users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(50) NOT NULL,
+      status VARCHAR(50) NOT NULL
+    );
