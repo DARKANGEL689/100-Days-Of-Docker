@@ -1,9 +1,10 @@
-# Day 23: Compute Management & Horizontal Autoscaling
+# Day 23: Compute Governance & Advanced Elasticity
 
-Today, I protected the cluster from "Noisy Neighbor" scenarios and engineered a fully elastic application architecture that scales dynamically with traffic.
+Today, I protected the cluster from "Noisy Neighbor" scenarios by engineering strict resource governance policies and a fully elastic application architecture.
 
-## Architecture Implemented:
-1. **Compute Governance:** Injected strict CPU/Memory `requests` (guarantees) and `limits` (caps) at the container level to ensure cluster stability.
-2. **Telemetry Integration:** Deployed the `metrics-server` to provide real-time utilization data to the control plane.
-3. **Dynamic Elasticity:** Engineered a `HorizontalPodAutoscaler` (HPA) to automatically monitor CPU utilization.
-4. **Chaos Verification:** Executed synthetic load floods (`wget` loops) and successfully validated the HPA automatically scaling the deployment from 1 to 5 replicas to absorb the traffic spike, preventing application downtime.
+## Architecture & Governance Implemented:
+1. **Telemetry Integration:** Deployed the `metrics-server` to provide real-time utilization data to the control plane.
+2. **Compute Governance:** Injected strict CPU/Memory `requests` (guarantees) and `limits` (caps) at the container level.
+3. **Automated Guardrails (`LimitRange`):** Engineered admission controllers to automatically inject default compute limits into misconfigured pods.
+4. **Namespace Caps (`ResourceQuota`):** Implemented hard maximum ceilings on total namespace CPU (2 Cores), Memory (2Gi), and Pod count (15) to prevent systemic exhaustion.
+5. **Multi-Metric Elasticity (`HPA v2`):** Authored an advanced `HorizontalPodAutoscaler` that dynamically evaluates both CPU (50%) and Memory (70%) utilization to trigger scale-out events.
