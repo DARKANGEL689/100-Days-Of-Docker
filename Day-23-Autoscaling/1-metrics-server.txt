@@ -1,0 +1,1 @@
+Deployed native Kubernetes Metrics Server for real-time resource telemetry
