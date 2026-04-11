@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authorized-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authorized-api
+  template:
+    metadata:
+      labels:
+        app: authorized-api
+    spec:
+      containers:
+      - name: api
+        image: alpine
+        command: ["sleep", "3600"] 
