@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-db
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-db
+  template:
+    metadata:
+      labels:
+        app: vault-db
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-db-svc
+  namespace: default
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: vault-db
