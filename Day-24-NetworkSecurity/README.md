@@ -1,9 +1,10 @@
-# Day 24: Zero-Trust Networking & Micro-Segmentation
+# Day 24: Advanced Zero-Trust Networking & Egress Control
 
-Today, I eliminated the inherent "Flat Network" vulnerabilities in Kubernetes by engineering internal micro-firewalls to physically isolate workloads.
+Today, I eliminated inherent Kubernetes network vulnerabilities by engineering a comprehensive "Default Deny" micro-segmentation architecture, effectively trapping compromised workloads and preventing data exfiltration.
 
-## Architecture Implemented:
-1. **Threat Modeling:** Deployed dummy High-Value Targets (HVT) and executed internal lateral-movement penetration tests via rogue containers.
-2. **Micro-Segmentation:** Authored Layer 4 `NetworkPolicy` objects to enforce strict internal perimeters.
-3. **Least Privilege Routing:** Engineered `podSelector` whitelists to drop all default internal traffic, explicitly permitting ingress *only* from cryptographically verified authorized microservices.
-4. **Verification:** Successfully validated that unauthorized lateral movement is dropped at the network layer while maintaining critical internal application pathways.
+## Architecture & Security Implemented:
+1. **Threat Modeling:** Executed internal lateral-movement and exfiltration penetration tests via rogue containers.
+2. **The Zero-Trust Baseline:** Implemented Namespace-wide `Default Deny` Ingress policies to implicitly drop all unverified inbound traffic.
+3. **Anti-Botnet Egress Control:** Engineered explicit Egress lockdowns to physically trap pods, preventing reverse shells and outbound malware downloads.
+4. **Critical Service Exceptions:** Architected strict UDP/53 egress pathways to the `kube-system` namespace to preserve internal CoreDNS resolution.
+5. **Cross-Namespace Communication:** Configured label-based `namespaceSelector` rules to securely permit Prometheus telemetry scraping from isolated network segments.
