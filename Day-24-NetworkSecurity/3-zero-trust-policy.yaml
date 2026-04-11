@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-vault-lockdown
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: vault-db 
+  policyTypes:
+  - Ingress 
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: authorized-api 
+    ports:
+    - protocol: TCP
+      port: 6379
