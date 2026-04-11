@@ -1,0 +1,8 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: global-security-auditor
+rules:
+- apiGroups: ["", "apps", "networking.k8s.io"]
+  resources: ["pods", "deployments", "networkpolicies", "nodes"]
+  verbs: ["get", "list", "watch"] 
