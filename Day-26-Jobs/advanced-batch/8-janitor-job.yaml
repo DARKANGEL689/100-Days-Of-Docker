@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: clean-exit-job
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 30 
+  template:
+    spec:
+      containers:
+      - name: fast-worker
+        image: alpine
+        command: ["echo", "I do my job and then I clean up after myself!"]
+      restartPolicy: Never
