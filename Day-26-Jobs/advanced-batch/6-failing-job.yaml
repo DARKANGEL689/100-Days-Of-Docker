@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: buggy-script-job
+  namespace: default
+spec:
+  backoffLimit: 2 
+  template:
+    spec:
+      containers:
+      - name: crasher
+        image: alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Attempting to connect to database...";
+            sleep 2;
+            echo "FATAL ERROR!";
+            exit 1 
+      restartPolicy: Never
