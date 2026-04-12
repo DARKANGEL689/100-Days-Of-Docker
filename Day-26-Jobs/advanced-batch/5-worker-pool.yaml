@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: image-processing-pool
+  namespace: default
+spec:
+  completions: 5  
+  parallelism: 3  
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Processing batch item...";
+            sleep 5;
+            echo "Item complete!";
+      restartPolicy: Never
