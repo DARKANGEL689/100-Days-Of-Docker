@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nightly-db-backup
+  namespace: default
+spec:
+  schedule: "*/1 * * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup-script
+            image: alpine
+            command: ["/bin/sh", "-c"]
+            args:
+              - echo "[$$(date)] Initiating Database Backup to S3...";
+                sleep 5;
+                echo "Backup saved successfully."
+          restartPolicy: OnFailure
