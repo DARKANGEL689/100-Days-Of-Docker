@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-v1
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: migration-script
+        image: alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Starting Database Migration...";
+            sleep 10;
+            echo "Applying Schema v1.4...";
+            sleep 5;
+            echo "Migration Complete!";
+      restartPolicy: Never
