@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: runaway-script
+  namespace: default
+spec:
+  activeDeadlineSeconds: 10 
+  template:
+    spec:
+      containers:
+      - name: slow-worker
+        image: alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "Starting an hour long process...";
+            sleep 3600; 
+      restartPolicy: Never
