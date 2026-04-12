@@ -1,8 +1,10 @@
-# Day 26: Batch Processing & Scheduled Automation (Jobs/CronJobs)
+# Day 26: Advanced Batch Processing & Concurrency
 
-Today, I expanded the cluster's workload capabilities beyond long-running web services by engineering ephemeral, run-to-completion automation tasks.
+Today, I engineered highly resilient batch processing architectures, expanding the cluster to handle automated, run-to-completion tasks with strict governance guardrails.
 
-## Architecture Implemented:
-1. **Batch Processing (`Job`):** Deployed single-run data migration scripts configured with `restartPolicy: Never` to prevent CrashLoopBackOffs upon successful exit.
-2. **Lifecycle Validation:** Executed telemetry verifications to confirm `Completed` state preservation, allowing for post-mortem log analysis of terminated pods.
-3. **Scheduled Automation (`CronJob`):** Engineered time-based controllers using standard POSIX cron expressions (`*/1 * * * *`) to automatically trigger simulated database backups at exact intervals.
+## Architecture & Governance Implemented:
+1. **Parallel Execution:** Configured `parallelism` and `completions` thresholds to distribute heavy workloads across dynamic worker pools.
+2. **Scheduled Automation:** Engineered POSIX-based `CronJobs` for recurring tasks, and utilized `suspend` toggles for graceful scheduling pauses.
+3. **Execution Timeouts:** Implemented `activeDeadlineSeconds` to act as a system circuit-breaker, automatically terminating runaway processes and infinite loops.
+4. **Retry Guardrails:** Configured `backoffLimit` properties to prevent infinite restart loops on failing application code.
+5. **Automated Garbage Collection:** Injected `ttlSecondsAfterFinished` controllers to automatically purge terminated resources, preventing `etcd` database bloat.
