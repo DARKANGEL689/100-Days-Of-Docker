@@ -5,6 +5,7 @@ metadata:
   namespace: default
 spec:
   schedule: "*/1 * * * *" 
+  suspend: true
   jobTemplate:
     spec:
       template:
