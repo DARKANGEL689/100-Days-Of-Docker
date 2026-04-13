@@ -1,9 +1,9 @@
-# Day 27: GitOps & Continuous Delivery (ArgoCD)
+# Day 27: Continuous Delivery & Automated GitOps
 
-Today, I fundamentally shifted the cluster's deployment architecture from manual operational commands ("ClickOps") to a declarative, continuous GitOps pipeline using ArgoCD.
+Today, I fundamentally shifted the cluster's deployment architecture from manual operational commands ("ClickOps") to a declarative, continuous GitOps pipeline using ArgoCD. GitHub is now the single source of truth.
 
-## Architecture Implemented:
-1. **The GitOps Engine:** Deployed the ArgoCD control plane, application controllers, and state management databases into a dedicated namespace.
-2. **Secure Edge Routing:** Engineered an NGINX Ingress controller specifically configured for internal HTTPS backend protocols to securely route traffic to the Argo API.
-3. **Automated PKI Integration:** Integrated `cert-manager` to automatically generate and attach TLS certificates to the `argocd.local` domain.
-4. **Credential Extraction:** Successfully extracted and decoded the initial Base64-encoded administrator credentials to establish root UI access.
+## Architecture & Automation Implemented:
+1. **The GitOps Engine:** Deployed the ArgoCD control plane and secured it behind an HTTPS-terminated NGINX Ingress controller.
+2. **State Synchronization:** Authored declarative `Application` CRDs connecting live cluster state directly to the GitHub repository branch (`HEAD`).
+3. **Automated Deployment:** Configured automated synchronization to instantly apply Git commits to the cluster without human intervention or terminal access.
+4. **Self-Healing Infrastructure:** Engineered `prune` and `selfHeal` policies to automatically detect configuration drift and instantly revert unauthorized manual cluster mutations back to the Git baseline.
