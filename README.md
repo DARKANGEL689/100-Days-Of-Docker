@@ -1,3 +1,4 @@
+[![Enterprise CI/CD Pipeline](https://github.com/DARKANGEL689/100-Days-Of-Docker/actions/workflows/docker-ci.yaml/badge.svg)](https://github.com/DARKANGEL689/100-Days-Of-Docker/actions/workflows/docker-ci.yaml)
 # Day 28: The Holy Grail (Enterprise CI/CD & Secure Supply Chains)
 
 Today, I engineered a fully autonomous, zero-touch CI/CD loop, seamlessly integrating GitHub Actions with ArgoCD to achieve absolute continuous delivery.
