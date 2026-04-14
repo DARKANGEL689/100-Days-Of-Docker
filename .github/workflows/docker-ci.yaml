@@ -1,28 +1,52 @@
-name: Docker Image CI
+name: Enterprise CI/CD Pipeline
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - 'Day-28-CI/app/**' 
+      - 'Day-28-CI/app/**'
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest 
-
+  build-test-deploy:
+    runs-on: ubuntu-latest
     steps:
-    - name: 1. Check out the repository code
+    - name: 1. Checkout Code
       uses: actions/checkout@v3
 
-    - name: 2. Log in to Docker Hub
+    - name: 2. Quality Gate (Lint Dockerfile)
+      uses: hadolint/hadolint-action@v3.1.0
+      with:
+        dockerfile: ./Day-28-CI/app/Dockerfile
+
+    - name: 3. Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: 3. Build and push the Docker image
+    - name: 4. Build and Push (Dynamic Tag)
       uses: docker/build-push-action@v4
       with:
         context: ./Day-28-CI/app
         push: true
-        tags: darkangel689/gitops-webapp:v1 
+        tags: darkangel689/gitops-webapp:${{ github.sha }} 
+
+    - name: 5. Security Scan (Trivy)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'darkangel689/gitops-webapp:${{ github.sha }}'
+        format: 'table'
+        exit-code: '0' 
+        severity: 'CRITICAL,HIGH'
+
+    - name: 6. The Holy Grail (Automated GitOps Loop)
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        
+        # This commands finds the "image:" line in your deployment and swaps it for the newly built tag!
+        sed -i "s|image: .*|image: darkangel689/gitops-webapp:${{ github.sha }}|g" Day-27-GitOps/gitops-app/deployment.yaml
+        
+        git add Day-27-GitOps/gitops-app/deployment.yaml
+        git commit -m "🤖 CD Pipeline: Automated image update to ${{ github.sha }}"
+        git push
