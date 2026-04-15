@@ -16,14 +16,14 @@ spec:
     spec:
       containers:
       - name: web
-        image: nginx:1.24-alpine 
+        image: nginx:1.25-alpine 
         ports:
         - containerPort: 80
   strategy:
-    canary: 
+    canary:
       steps:
-      - setWeight: 20       
-      - pause: {duration: 30s} 
-      - setWeight: 50       
-      - pause: {duration: 30s} 
+      - setWeight: 20
+      - pause: {} 
+      - setWeight: 50
+      - pause: {duration: 10s} 
       
