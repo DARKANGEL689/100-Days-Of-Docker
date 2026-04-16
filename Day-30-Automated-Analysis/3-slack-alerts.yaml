@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  trigger.rollout-degraded: |
+    - when: app.status.health.status == 'Degraded'
+      send: [slack-alert]
+ 
+  template.slack-alert: |
+    message: |
+      🚨 *EMERGENCY ROLLBACK TRIGGERED* 🚨
+      Application: {{.app.metadata.name}}
+      The AI QA Bots detected a failure and instantly aborted the deployment. Production is safe.
