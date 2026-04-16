@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: http-health-check
+  namespace: default
+spec:
+  metrics:
+  - name: curl-the-canary
+    count: 3       
+    interval: 15s  
+    provider:
+      job:
+        spec:
+          backoffLimit: 0 
+          template:
+            spec:
+              containers:
+              - name: qa-bot
+                image: curlimages/curl
+                command: ["curl", "--fail", "--silent", "http://canary-webapp-svc"]
+              restartPolicy: Never
