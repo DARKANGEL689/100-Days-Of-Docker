@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: automated-webapp
+  namespace: default
+spec:
+  replicas: 5
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: "automated-web"
+  template:
+    metadata:
+      labels:
+        app: "automated-web"
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.24-alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: automated-webapp-svc
+  namespace: default
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: "automated-web"
+strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - analysis:
+          templates:
+          - templateName: http-health-check
+      
+      - setWeight: 100
