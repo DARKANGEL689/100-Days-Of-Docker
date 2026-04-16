@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: headers-router
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Built-By: Docker-Master";
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /headers
+        pathType: Prefix
+        backend:
+          service:
+            name: search-service
+            port:
+              number: 80
