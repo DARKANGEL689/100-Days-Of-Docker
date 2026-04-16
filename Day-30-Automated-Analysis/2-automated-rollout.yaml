@@ -16,17 +16,9 @@ spec:
     spec:
       containers:
       - name: web
-        image: nginx:this-image-is-broken-and-does-not-exist
+        image: nginx:1.24-alpine
         ports:
         - containerPort: 80
-  strategy:
-    canary:
-      steps:
-      - setWeight: 20
-      - analysis:
-          templates:
-          - templateName: http-health-check
-      - setWeight: 100
 ---
 apiVersion: v1
 kind: Service
@@ -38,3 +30,12 @@ spec:
   - port: 80
   selector:
     app: "automated-web"
+strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - analysis:
+          templates:
+          - templateName: http-health-check
+      
+      - setWeight: 100
