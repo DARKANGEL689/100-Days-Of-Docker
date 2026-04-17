@@ -1,0 +1,1 @@
+Helm package manager verified and ready for templating
