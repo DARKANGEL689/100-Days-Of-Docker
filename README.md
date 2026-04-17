@@ -1,11 +1,11 @@
-[![Enterprise CI/CD Pipeline](https://github.com/DARKANGEL689/100-Days-Of-Docker/actions/workflows/docker-ci.yaml/badge.svg)](https://github.com/DARKANGEL689/100-Days-Of-Docker/actions/workflows/docker-ci.yaml)
-# Day 28: The Holy Grail (Enterprise CI/CD & Secure Supply Chains)
+# Month 2: Platform Engineering & Automation
 
-Today, I engineered a fully autonomous, zero-touch CI/CD loop, seamlessly integrating GitHub Actions with ArgoCD to achieve absolute continuous delivery.
+# Day 31: Helm Package Management & Template Injection
 
-## Architecture & Automation Implemented:
-1. **Dynamic Versioning:** Eliminated static tags by injecting cryptographic `${{ github.sha }}` commit hashes as container image tags, ensuring absolute traceability.
-2. **Quality Gates:** Integrated `hadolint` for strict Dockerfile linting and best-practice enforcement.
-3. **Vulnerability Scanning:** Embedded `Trivy` into the CI pipeline to actively scan built artifacts for CRITICAL and HIGH vulnerabilities before registry distribution.
-4. **The GitOps Loop:** Engineered programmatic `sed` operations within the CI runner to automatically mutate ArgoCD `deployment.yaml` manifests with the newly built dynamic tag.
-5. **Zero-Touch Delivery:** Granted Write Permissions to the `github-actions[bot]`, allowing it to commit declarative state changes back to the repository, instantly triggering ArgoCD drift-reconciliation and automated cluster deployments.
+Today, I fundamentally shifted cluster management from static manifest files to dynamic, data-driven templates using Helm.
+
+## Architecture Implemented:
+1. **Scaffolding & Templating:** Generated standardized Helm Charts, separating static Kubernetes syntax (`templates/`) from dynamic parameters (`values.yaml`).
+2. **Lifecycle Management:** Executed live `helm install` and `helm upgrade` operations, managing massive architectural state changes by mutating single configuration variables.
+3. **Version Control & Rollbacks:** Validated Helm's native revision history, successfully executing zero-downtime `helm rollback` commands to instantly revert accidental architectural changes.
+4. **Third-Party Integrations:** Tapped into upstream Helm repositories to deploy complex enterprise software (Metrics Server), utilizing `--set` flags to dynamically inject custom arguments for local cluster compatibility.
