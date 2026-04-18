@@ -12,6 +12,9 @@ spec:
     helm:
       valueFiles:
       - values.yaml
+      parameters:
+      - name: "nginx.replicaCount"
+        value: "5"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default
