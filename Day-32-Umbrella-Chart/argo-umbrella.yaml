@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-full-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/DARKANGEL689/100-Days-Of-Docker.git'
+    targetRevision: main
+    path: Day-32-Umbrella-Chart/full-stack-env
+    helm:
+      valueFiles:
+      - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
