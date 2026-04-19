@@ -1,12 +1,11 @@
-# 1. Global Overrides for the Frontend
 nginx:
   replicaCount: 3
   service:
     type: LoadBalancer
 
-# 2. Global Overrides for the Database
 redis:
   architecture: standalone
   auth:
     enabled: true
-    password: "SuperSecretSeniorEngineerPassword"
+    existingSecret: "my-database-password"
+    existingSecretPasswordKey: "db-password"
