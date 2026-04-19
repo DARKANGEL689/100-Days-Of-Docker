@@ -1,0 +1,1 @@
+Sealed Secrets Decryption Controller deployed to kube-system
