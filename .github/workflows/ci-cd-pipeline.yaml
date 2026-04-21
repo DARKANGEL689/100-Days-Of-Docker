@@ -33,10 +33,11 @@ jobs:
       # Step 4: The CI Phase - Build the Image and tag it with the unique GitHub Commit ID
       - name: Build and Push Docker Image
         run: |
-          # Note: We are faking the docker build here to focus on the GitOps bridge
-          echo "Simulating Docker Build..."
-          # docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-api:${{ github.sha }} .
-          # docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-api:${{ github.sha }}
+          cd Day-35-CI-CD-Bridge
+          # Build the image using the Dockerfile we just created
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-api:${{ github.sha }} .
+          # Push the image to the live Docker Hub registry
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-api:${{ github.sha }}
 
       # Step 5: The CD Bridge - Update Kustomize and push back to GitHub!
       - name: Update Kubernetes Manifests
