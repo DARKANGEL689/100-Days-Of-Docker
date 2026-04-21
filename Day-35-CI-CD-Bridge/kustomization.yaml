@@ -1,4 +1,4 @@
 images:
 - name: darkangel689/my-api
   newName: darkangel689/my-api
-  newTag: v2.0.0-latest
+  newTag: v2.0.0-latest# Waking up the CI/CD Robot for real!
