@@ -1,4 +1,9 @@
 images:
+- name: DARKANGEL689/my-api
+  newName: darkangel689/my-api
+  newTag: 6ee35cb07c6875a58a3067beec17a8909bf68f24
 - name: darkangel689/my-api
   newName: darkangel689/my-api
   newTag: v2.0.0-latest# Waking up the CI/CD Robot for real!
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
