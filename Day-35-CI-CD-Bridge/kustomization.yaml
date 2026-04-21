@@ -1,7 +1,7 @@
 images:
 - name: DARKANGEL689/my-api
   newName: darkangel689/my-api
-  newTag: 4da26f7b3ca21ffd851142b9bbdf16f9fc56d035
+  newTag: 1b7e04e61c2111057a3533d205f8eb06189e8783
 - name: darkangel689/my-api
   newName: darkangel689/my-api
   newTag: v2.0.0-latest# Waking up the CI/CD Robot for real!
