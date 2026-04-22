@@ -2,9 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: main-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - my-app.local
+    secretName: app-tls-cert
   rules:
   - host: my-app.local
     http:
@@ -14,5 +17,12 @@ spec:
         backend:
           service:
             name: my-api-service
+            port:
+              number: 80
+      - path: /search
+        pathType: Prefix
+        backend:
+          service:
+            name: search-service
             port:
               number: 80
