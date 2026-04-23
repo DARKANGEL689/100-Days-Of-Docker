@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: monitored-api-alerts
+  labels:
+    release: kube-prom
+spec:
+  groups:
+  - name: api.rules
+    rules:
+    - alert: ApiOffline
+      expr: absent(up{job="monitored-api-service"})
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "API is Down"
+        description: "Prometheus has not been able to scrape the API for 1 minute."
