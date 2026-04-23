@@ -1,8 +1,5 @@
-# Day 34: Multi-Environment Kustomize & GitOps Integration
-
-Today, I shifted from Helm templating to native Kubernetes `Kustomize` patching, engineering a strict multi-environment architecture without duplicating base YAML files.
-
-## Architecture Implemented:
-1. **Base & Overlay Separation:** Established a pristine `base/` architecture and engineered distinct `overlays/` for Development and Production environments.
-2. **Strategic Merge Patching:** Utilized Kustomize to dynamically inject environment-specific labels, name prefixes, and replica counts (scaling Prod to 3, Dev to 1) without modifying the source truth.
-3. **Multi-Environment GitOps:** Authored isolated ArgoCD `Application` CRDs for both `dev` and `prod` overlays, allowing a single Git repository to autonomously drive multiple independent cluster environments simultaneously.
+## Day 37: Enterprise Observability & Telemetry (Prometheus & Grafana)
+1. **Infrastructure:** Deployed the `kube-prometheus-stack` via Helm for cluster-wide metrics scraping and Grafana visualization.
+2. **Application Telemetry:** Authored a Node.js microservice natively instrumented with `prom-client` to expose custom application metrics.
+3. **Dynamic Discovery:** Configured a `ServiceMonitor` Custom Resource Definition (CRD) to autonomously bind the API endpoints to the Prometheus scraping engine.
+4. **Proactive Defense:** Engineered a `PrometheusRule` to trigger automated critical alerts based on target availability state.
