@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: json-error-simulator
+  labels:
+    app: json-logger
+spec:
+  containers:
+  - name: logger
+    image: alpine
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        while true; do
+          # 80% chance of an INFO log, 20% chance of a CRITICAL error
+          if [ $(($RANDOM % 5)) -eq 0 ]; then
+            echo '{"level":"critical", "module":"database", "message":"Connection refused", "code": 503}'
+          else
+            echo '{"level":"info", "module":"auth", "message":"User logged in", "userId":'$(($RANDOM % 100))'}'
+          fi
+          sleep 2
+        done
