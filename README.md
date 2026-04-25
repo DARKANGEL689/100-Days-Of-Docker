@@ -1,7 +1,6 @@
-## Day 39: Stateful Workloads & Persistent Storage (MongoDB)
-1. **Persistent Volumes:** Provisioned PVCs to decouple physical storage from ephemeral pod lifecycles.
-2. **Stateful Routing:** Engineered Headless Services (`clusterIP: None`) for stable, predictable database networking.
-3. **StatefulSet Deployment:** Deployed MongoDB as a StatefulSet to guarantee ordinal scaling and sticky volume attachment.
-4. **Security & Initialization:** Injected root credentials via Kubernetes Secrets and volume-mounted initialization scripts via ConfigMaps.
-5. **Disaster Recovery:** Configured a Kubernetes `CronJob` for automated, nightly `mongodump` archiving.
-6. **Zero-Trust Network:** Enforced `NetworkPolicy` rules to restrict database access strictly to backend API components.
+## Day 40: Elastic Infrastructure & Autoscaling (HPA)
+1. **Resource Quotas:** Enforced strict CPU/Memory `requests` and `limits` to establish baseline pod utilization metrics.
+2. **Autonomous Scaling:** Deployed `HorizontalPodAutoscaler` (v2) to dynamically adjust replica counts based on real-time resource constraints.
+3. **Multi-Metric Tracking:** Configured the HPA to evaluate both CPU (50%) and Memory (70%) utilization thresholds concurrently.
+4. **Load Testing:** Executed high-density simulated traffic via isolated chaos pods to validate instantaneous algorithmic scale-up capabilities.
+5. **Cost Optimization:** Validated Kubernetes cooldown algorithms to ensure safe, cost-efficient scale-down operations after traffic subsidence.
