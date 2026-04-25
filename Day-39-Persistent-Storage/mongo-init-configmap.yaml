@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-init-script
+data:
+  init.js: |
+    db = db.getSiblingDB('enterprise_db');
+    db.createUser({
+      user: "api_user",
+      pwd: "api_password",
+      roles: [{ role: "readWrite", db: "enterprise_db" }]
+    });
+    db.users.insertOne({ name: "System Admin", role: "Superuser" });
