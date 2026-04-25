@@ -1,9 +1,7 @@
-## Day 38: Centralized Log Aggregation (PLG Stack)
-1. **Aggregator Deployment:** Provisioned Grafana Loki and Promtail using Helm within the `monitoring` namespace.
-2. **DaemonSet Architecture:** Promtail configured to automatically scrape `stdout` and `stderr` from all container runtimes across the cluster.
-3. **Data Source Integration:** Wired Loki's internal Kubernetes DNS endpoint (`http://loki:3100`) into Grafana.
-4. **LogQL Exploration:** Executed LogQL queries via Grafana Explore to centralize and filter microservice telemetry streams.
-5. **Structured Logging:** Deployed custom infrastructure outputting standardized JSON logs for downstream processing.
-6. **Advanced LogQL:** Engineered data pipelines using the `| json` parser to extract dynamic labels and filter critical module failures.
-7. **Logs-to-Metrics:** Developed aggregate queries to convert unstructured log data into graphable rate metrics.
-8. **Host Telemetry:** Validated Promtail's capability to scrape underlying node kernel logs (`/var/log`) for deep infrastructure debugging.
+## Day 39: Stateful Workloads & Persistent Storage (MongoDB)
+1. **Persistent Volumes:** Provisioned PVCs to decouple physical storage from ephemeral pod lifecycles.
+2. **Stateful Routing:** Engineered Headless Services (`clusterIP: None`) for stable, predictable database networking.
+3. **StatefulSet Deployment:** Deployed MongoDB as a StatefulSet to guarantee ordinal scaling and sticky volume attachment.
+4. **Security & Initialization:** Injected root credentials via Kubernetes Secrets and volume-mounted initialization scripts via ConfigMaps.
+5. **Disaster Recovery:** Configured a Kubernetes `CronJob` for automated, nightly `mongodump` archiving.
+6. **Zero-Trust Network:** Enforced `NetworkPolicy` rules to restrict database access strictly to backend API components.
