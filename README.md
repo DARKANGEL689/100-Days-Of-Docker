@@ -1,6 +1,7 @@
-## Day 40: Elastic Infrastructure & Autoscaling (HPA)
-1. **Resource Quotas:** Enforced strict CPU/Memory `requests` and `limits` to establish baseline pod utilization metrics.
-2. **Autonomous Scaling:** Deployed `HorizontalPodAutoscaler` (v2) to dynamically adjust replica counts based on real-time resource constraints.
-3. **Multi-Metric Tracking:** Configured the HPA to evaluate both CPU (50%) and Memory (70%) utilization thresholds concurrently.
-4. **Load Testing:** Executed high-density simulated traffic via isolated chaos pods to validate instantaneous algorithmic scale-up capabilities.
-5. **Cost Optimization:** Validated Kubernetes cooldown algorithms to ensure safe, cost-efficient scale-down operations after traffic subsidence.
+## Day 41: Advanced GitOps & Continuous Deployment (ArgoCD)
+1. **Controller Deployment:** Provisioned the ArgoCD enterprise controller stack within a dedicated namespace.
+2. **Continuous Synchronization:** Wired GitHub repositories directly to the cluster to enforce Git as the Single Source of Truth.
+3. **Automated Drift Resolution:** Validated ArgoCD's `SelfHeal` capabilities by simulating unauthorized manual infrastructure deletion.
+4. **Declarative State Management:** Executed cluster scaling and version upgrades entirely via Git commits, eliminating `kubectl apply` workflows.
+5. **Disaster Recovery:** Simulated rapid production rollbacks using `git revert` to reverse faulty configuration states.
+6. **Application CRDs:** Engineered declarative `Application` manifests for automated, UI-free GitOps bootstrapping.
