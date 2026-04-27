@@ -7,7 +7,7 @@ spec:
   - port: 80
     targetPort: 80
   selector:
-    app: gitops-nginx 
+    app: gitops-nginx
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
@@ -15,7 +15,7 @@ metadata:
   name: mesh-gateway
 spec:
   selector:
-    istio: ingress 
+    istio: ingress
   servers:
   - port:
       number: 80
@@ -39,7 +39,7 @@ spec:
         percentage:
           value: 50.0
         fixedDelay: 3s
-  - match:
+    match:
     - uri:
         prefix: /
     route:
@@ -47,4 +47,3 @@ spec:
         host: gitops-nginx-svc
         port:
           number: 80
-    
