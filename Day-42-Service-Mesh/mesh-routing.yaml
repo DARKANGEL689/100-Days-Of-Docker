@@ -34,6 +34,11 @@ spec:
   gateways:
   - mesh-gateway
   http:
+  - fault:
+      delay:
+        percentage:
+          value: 50.0
+        fixedDelay: 3s
   - match:
     - uri:
         prefix: /
@@ -42,3 +47,4 @@ spec:
         host: gitops-nginx-svc
         port:
           number: 80
+    
