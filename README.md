@@ -1,7 +1,7 @@
-## Day 41: Advanced GitOps & Continuous Deployment (ArgoCD)
-1. **Controller Deployment:** Provisioned the ArgoCD enterprise controller stack within a dedicated namespace.
-2. **Continuous Synchronization:** Wired GitHub repositories directly to the cluster to enforce Git as the Single Source of Truth.
-3. **Automated Drift Resolution:** Validated ArgoCD's `SelfHeal` capabilities by simulating unauthorized manual infrastructure deletion.
-4. **Declarative State Management:** Executed cluster scaling and version upgrades entirely via Git commits, eliminating `kubectl apply` workflows.
-5. **Disaster Recovery:** Simulated rapid production rollbacks using `git revert` to reverse faulty configuration states.
-6. **Application CRDs:** Engineered declarative `Application` manifests for automated, UI-free GitOps bootstrapping.
+## Day 42: Zero-Trust Service Mesh (Istio & Envoy)
+1. **Control Plane:** Deployed the `istiod` control plane and base CRDs via Helm.
+2. **Autonomous Proxies:** Enabled namespace labeling for automatic Envoy sidecar proxy injection.
+3. **Strict Security:** Enforced global `STRICT` mTLS PeerAuthentication, dropping all unencrypted internal cluster traffic.
+4. **Edge Routing:** Provisioned the Istio Ingress Gateway and `VirtualService` definitions for mesh-native ingress.
+5. **Chaos Engineering:** Injected artificial network latency (Fault Injection) via proxy manipulation without altering application code.
+6. **Mesh Topography:** Deployed Kiali for real-time visual mapping of encrypted traffic flows and proxy telemetry.
