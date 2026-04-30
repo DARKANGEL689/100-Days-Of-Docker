@@ -1,0 +1,13 @@
+serverFiles:
+  alerts:
+    groups:
+      - name: DevOpsAlerts
+        rules:
+          - alert: PodCrashLooping
+            expr: rate(kube_pod_container_status_restarts_total[1m]) > 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "CRITICAL: A Pod is caught in a CrashLoopBackOff!"
+              description: "Kubernetes is repeatedly failing to start a container."
