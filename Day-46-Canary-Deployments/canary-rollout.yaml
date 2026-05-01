@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: demo-canary
+spec:
+  replicas: 5
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: demo-canary
+  template:
+    metadata:
+      labels:
+        app: demo-canary
+    spec:
+      containers:
+      - name: app
+        image: argoproj/rollouts-demo:blue 
+        ports:
+        - containerPort: 8080
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20      
+      - pause: {}          
+      - setWeight: 50      
+      - pause: {duration: 30s} 
+      - setWeight: 100        
