@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: argoproj/rollouts-demo:blue 
+        image: argoproj/rollouts-demo:yellow 
         ports:
         - containerPort: 8080
   strategy:
