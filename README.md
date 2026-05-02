@@ -1,6 +1,6 @@
-## Day 46: Progressive Delivery (Argo Rollouts)
-1. **Controller Provisioning:** Deployed the Argo Rollouts controller and CRDs to manage advanced deployment strategies.
-2. **Local Toolchain:** Configured the `kubectl-argo-rollouts` CLI and visual dashboard for real-time traffic monitoring.
-3. **Canary Engineering:** Engineered declarative Custom Resources defining weight-based traffic shifting and pause durations.
-4. **Controlled Promotion:** Executed a V1 to V2 upgrade, pausing at 20% traffic isolation for manual health validation.
-5. **Instant Rollback:** Validated disaster recovery protocols via instantaneous Rollout abortion and reversion to baseline state.
+## Day 47: Policy as Code (OPA Gatekeeper)
+1. **Admission Controller:** Deployed the OPA Gatekeeper webhook to intercept and evaluate all API requests against cluster policies.
+2. **Tag Stability Policy:** Engineered Rego `ConstraintTemplates` to reject implicit `:latest` image tags, forcing predictable versioning.
+3. **Zero-Trust Privilege Policy:** Engineered Rego logic to mandate `runAsNonRoot: true`, preventing root escalation vulnerabilities.
+4. **Chaos Validation:** Validated webhook rejection capabilities by attempting to deploy non-compliant configurations.
+5. **Golden Architecture:** Deployed compliant application manifests featuring pinned tags and strict unprivileged security contexts.
