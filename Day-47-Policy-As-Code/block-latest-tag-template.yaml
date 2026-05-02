@@ -1,0 +1,27 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sblocklatesttag
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sBlockLatestTag
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sblocklatesttag
+
+        # Rule 1: Reject if the image explicitly ends with ":latest"
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          endswith(container.image, ":latest")
+          msg := sprintf("POLICY VIOLATION: You cannot use the 'latest' tag for image '%v'. You must pin a specific version!", [container.image])
+        }
+
+        # Rule 2: Reject if the image has no tag at all (which implies latest)
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not contains(container.image, ":")
+          msg := sprintf("POLICY VIOLATION: No tag found for image '%v'. You must pin a specific version!", [container.image])
+        }
