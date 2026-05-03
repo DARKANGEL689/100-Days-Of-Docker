@@ -1,6 +1,6 @@
-## Day 47: Policy as Code (OPA Gatekeeper)
-1. **Admission Controller:** Deployed the OPA Gatekeeper webhook to intercept and evaluate all API requests against cluster policies.
-2. **Tag Stability Policy:** Engineered Rego `ConstraintTemplates` to reject implicit `:latest` image tags, forcing predictable versioning.
-3. **Zero-Trust Privilege Policy:** Engineered Rego logic to mandate `runAsNonRoot: true`, preventing root escalation vulnerabilities.
-4. **Chaos Validation:** Validated webhook rejection capabilities by attempting to deploy non-compliant configurations.
-5. **Golden Architecture:** Deployed compliant application manifests featuring pinned tags and strict unprivileged security contexts.
+## Day 48: Cryptographic Secret Management (Bitnami Sealed Secrets)
+1. **Controller Provisioning:** Deployed the Bitnami Sealed Secrets engine to generate cluster-side asymmetric RSA keypairs.
+2. **Local Cryptography:** Configured the `kubeseal` CLI to safely encrypt sensitive configurations prior to version control.
+3. **Payload Delivery:** Deployed Git-safe encrypted manifests and validated autonomous controller decryption into native Kubernetes Secrets.
+4. **Memory Injection:** Engineered and deployed workloads utilizing `secretKeyRef` to securely consume decrypted credentials in memory.
+5. **Team Operations:** Extracted the public PEM certificate to enable offline, cluster-independent cryptographic operations for CI/CD pipelines.
