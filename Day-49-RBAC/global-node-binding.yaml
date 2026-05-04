@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: junior-node-viewer-binding
+subjects:
+- kind: ServiceAccount
+  name: junior-dev
+  namespace: web-team
+roleRef:
+  kind: ClusterRole
+  name: node-viewer-global
+  apiGroup: rbac.authorization.k8s.io
