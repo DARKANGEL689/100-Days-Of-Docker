@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-budget
+  namespace: strict-prod
+spec:
+  hard:
+    requests.cpu: "500m" 
+    requests.memory: 500Mi 
+    limits.cpu: "1" 
+    limits.memory: 1Gi 
+    pods: "3" 
