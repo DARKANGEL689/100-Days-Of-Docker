@@ -1,6 +1,6 @@
-## Day 49: Kubernetes RBAC (Role-Based Access Control)
-1. **Identity Provisioning:** Deployed localized `ServiceAccount` identities to simulate external human actors.
-2. **Zero-Trust Baseline:** Validated the implicit deny posture for unassigned cluster identities.
-3. **Role Engineering:** Authored bounded `Role` manifests enforcing the principle of least privilege for specific API resources.
-4. **Boundary Testing:** Executed simulated lateral escalations and destructive actions, validating physical cluster blocks via `auth can-i`.
-5. **Global Architecture:** Upgraded to `ClusterRole` and `ClusterRoleBinding` to manage cluster-wide, cross-namespace permissions.
+## Day 50: Cluster Resource Governance (Quotas & LimitRanges)
+1. **Environment Sandboxing:** Provisioned an isolated namespace for strict compute governance.
+2. **Hard Quotas:** Engineered `ResourceQuota` constraints to enforce hard ceilings on total namespace CPU, Memory, and Pod counts.
+3. **Automated Governance:** Deployed `LimitRange` admission controllers to autonomously inject default compute requests and limits.
+4. **Boundary Validation:** Validated multi-layer rejections against resource-greedy workload deployments.
+5. **Mutation Auditing:** Verified transparent LimitRange YAML mutation and audited active Quota consumption telemetry.
