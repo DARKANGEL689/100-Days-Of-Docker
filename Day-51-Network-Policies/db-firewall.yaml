@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-firewall
+spec:
+  podSelector:
+    matchLabels:
+      app: database 
+  policyTypes:
+  - Ingress 
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend 
