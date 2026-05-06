@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-outbound
+spec:
+  podSelector:
+    matchLabels:
+      app: rogue 
+  policyTypes:
+  - Egress
+  
