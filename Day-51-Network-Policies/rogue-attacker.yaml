@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-attacker
+  labels:
+    app: rogue
+spec:
+  containers:
+  - name: attacker
+    image: alpine
+    command: ["sleep", "3600"]
