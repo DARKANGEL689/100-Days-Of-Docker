@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-app
+  labels:
+    app: frontend 
+spec:
+  containers:
+  - name: web
+    image: alpine
+    command: ["sleep", "3600"]
