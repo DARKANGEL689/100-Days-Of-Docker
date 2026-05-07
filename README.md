@@ -1,6 +1,6 @@
-## Day 51: Zero-Trust Micro-segmentation (Network Policies)
-1. **Target Provisioning:** Deployed internal backend services to act as protected network targets.
-2. **Vulnerability Auditing:** Deployed rogue workloads and executed lateral network strikes, proving default-allow CNI vulnerabilities.
-3. **Firewall Engineering:** Engineered Layer 4 `NetworkPolicy` manifests to enforce strict ingress micro-segmentation based on pod labels.
-4. **Traffic Dropping:** Validated physical network severance and connection timeouts against unauthorized actors.
-5. **Authorized Handshakes:** Provisioned compliant frontend identities and validated explicit ingress authorization through the network boundary.
+## Day 52: Autonomous Elasticity (Horizontal Pod Autoscaler)
+1. **Target Provisioning:** Deployed a CPU-intensive baseline application utilizing strict compute `requests` to enable metric calculation.
+2. **Engine Deployment:** Engineered the `HorizontalPodAutoscaler` (v2) to govern deployment replica counts based on 50% CPU utilization thresholds.
+3. **Telemetry Auditing:** Verified connection to the internal Metrics Server for real-time pod resource telemetry.
+4. **Stress Testing:** Engineered and deployed infinite-loop traffic generators to simulate localized DDoS and viral traffic events.
+5. **Elasticity Validation:** Validated autonomous scale-up to maximum replica boundaries and verified the 5-minute stabilization window during scale-down.
