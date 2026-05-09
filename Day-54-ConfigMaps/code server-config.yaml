@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: game-server-settings
+data:
+  PLAYER_LIMIT: "100"
+  GAME_MODE: "survival"
+  
+  ui.properties: |
+    theme=dark
+    color=crimson
+    show_fps=true
