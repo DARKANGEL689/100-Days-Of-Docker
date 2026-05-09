@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: game-server
+spec:
+  containers:
+  - name: app
+    image: alpine
+    command: ["sleep", "3600"]
+    env:
+    - name: SERVER_MODE
+      valueFrom:
+        configMapKeyRef:
+          name: game-server-settings
+          key: GAME_MODE
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/game-config
+  volumes:
+  - name: config-volume
+    configMap:
+      name: game-server-settings
