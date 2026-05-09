@@ -7,6 +7,6 @@ data:
   GAME_MODE: "survival"
   
   ui.properties: |
-    theme=dark
+    theme=light
     color=crimson
     show_fps=true
