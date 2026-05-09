@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: locked-settings
+immutable: true 
+data:
+  CRITICAL_SYSTEM: "true"
