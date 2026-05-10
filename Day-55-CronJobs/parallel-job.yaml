@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: parallel-worker
+spec:
+  completions: 5 
+  parallelism: 2 
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'Processing chunk from queue...'; sleep 5; echo 'Done!'"]
+      restartPolicy: OnFailure
