@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fragile-script
+spec:
+  activeDeadlineSeconds: 10 
+  template:
+    spec:
+      containers:
+      - name: hung-worker
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'I am stuck...'; sleep 3600"]
+      restartPolicy: Never
