@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: self-destructing-job
+spec:
+  ttlSecondsAfterFinished: 60 
+  template:
+    spec:
+      containers:
+      - name: cleaner
+        image: alpine
+        command: ["echo", "I will erase myself from existence in 60 seconds."]
+      restartPolicy: Never
