@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: critical-database-pod
+spec:
+  containers:
+  - name: redis
+    image: redis:alpine
+  tolerations:
+  - key: "hardware-class"
+    operator: "Equal"
+    value: "database"
+    effect: "NoSchedule"
