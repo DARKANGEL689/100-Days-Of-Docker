@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: global-security-logger
+  labels:
+    app: security-agent
+spec:
+  selector:
+    matchLabels:
+      app: security-agent
+  template:
+    metadata:
+      labels:
+        app: security-agent
+    spec:
+      containers:
+      - name: logger
+        image: alpine
+        command: ["/bin/sh", "-c", "while true; do echo 'Scanning node filesystem... Secure.'; sleep 60; done"]
