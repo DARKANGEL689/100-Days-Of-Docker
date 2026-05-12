@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: heavy-legacy-app
+spec:
+  containers:
+  - name: jvm-simulator
+    image: busybox:1.28
+    args:
+    - /bin/sh
+    - -c
+    - echo "Booting heavy application..."; sleep 40; touch /tmp/ready; sleep 600
+    startupProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/ready
+      failureThreshold: 15 
+      periodSeconds: 5
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/ready
+      periodSeconds: 5
