@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zombie-app
+spec:
+  containers:
+  - name: liveness
+    image: busybox:1.28
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; echo "App running..."; sleep 30; rm -f /tmp/healthy; echo "Deadlock simulated."; sleep 600
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
