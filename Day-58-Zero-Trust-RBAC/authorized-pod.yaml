@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: authorized-agent
+spec:
+  serviceAccountName: api-explorer 
+  containers:
+  - name: agent
+    image: curlimages/curl:latest
+    command: ["sleep", "3600"]
