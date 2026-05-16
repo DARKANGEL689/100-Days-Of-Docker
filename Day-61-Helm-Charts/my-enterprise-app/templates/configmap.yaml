@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  UI_THEME: {{ .Values.appSettings.uiTheme | quote }}
+  CLUSTER_ENV: {{ .Values.appSettings.environment | upper | quote }}
