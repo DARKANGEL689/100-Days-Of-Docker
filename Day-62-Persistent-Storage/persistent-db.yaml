@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: single-node-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+      - name: postgres-simulator
+        image: alpine
+        command: ["/bin/sh", "-c", "while true; do sleep 30; done"]
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: db-storage
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: postgres-data-claim 
