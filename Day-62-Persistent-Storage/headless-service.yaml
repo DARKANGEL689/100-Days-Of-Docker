@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-db-cluster
+spec:
+  clusterIP: None 
+  selector:
+    app: stateful-db
+  ports:
+  - port: 5432
