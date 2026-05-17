@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-cluster
+spec:
+  serviceName: "enterprise-db-cluster" 
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stateful-db
+  template:
+    metadata:
+      labels:
+        app: stateful-db
+    spec:
+      containers:
+      - name: database
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'Booting Database Node...'; sleep 3600"]
+        volumeMounts:
+        - mountPath: "/var/lib/data"
+          name: storage-template
+  volumeClaimTemplates: 
+  - metadata:
+      name: storage-template
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
