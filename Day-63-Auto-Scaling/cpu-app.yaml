@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scalable-web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scalable-web
+  template:
+    metadata:
+      labels:
+        app: scalable-web
+    spec:
+      containers:
+      - name: php-apache
+        image: registry.k8s.io/hpa-example
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 200m 
+          limits:
+            cpu: 500m
