@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: strict-boot-app
+spec:
+  initContainers:
+  - name: wait-for-database
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup dummy-database-svc; do echo "Waiting for Database to boot..."; sleep 2; done; echo "Database detected. Unlocking main application."']
+  containers:
+  - name: main-application
+    image: alpine
+    command: ['sh', '-c', 'echo "Main app online. Connecting to database..." && sleep 3600']
