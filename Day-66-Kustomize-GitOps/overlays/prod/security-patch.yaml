@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server 
+spec:
+  template:
+    spec:
+      containers:
+      - name: api-container
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
