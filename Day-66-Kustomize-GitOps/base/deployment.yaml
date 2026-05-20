@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+spec:
+  selector:
+    matchLabels:
+      app: core-api
+  template:
+    metadata:
+      labels:
+        app: core-api
+    spec:
+      containers:
+      - name: api-container
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=BASELINE_IMAGE"]
+        ports:
+        - containerPort: 5678
