@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-database-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-api
+  template:
+    metadata:
+      labels:
+        app: secure-api
+    spec:
+      containers:
+      - name: api
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'API Online. Credentials loaded into memory.'; sleep 3600"]
+        envFrom:
+        - secretRef:
+            name: enterprise-db-credentials 
