@@ -15,7 +15,12 @@ spec:
       containers:
       - name: api
         image: alpine
-        command: ["/bin/sh", "-c", "echo 'API Online. Credentials loaded into memory.'; sleep 3600"]
-        envFrom:
-        - secretRef:
-            name: enterprise-db-credentials 
+        command: ["/bin/sh", "-c", "echo 'API Online. Credentials mounted securely as files.'; sleep 3600"]
+        volumeMounts:
+        - name: secret-vault
+          mountPath: "/etc/secrets"
+          readOnly: true
+      volumes:
+      - name: secret-vault
+        secret:
+          secretName: enterprise-db-credentials 
