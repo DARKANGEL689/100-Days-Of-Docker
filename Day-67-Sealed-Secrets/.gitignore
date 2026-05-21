@@ -1,0 +1,3 @@
+# CRITICAL: Never commit raw unencrypted secrets to the cloud!
+raw-secret.yaml
+kubeseal.exe
