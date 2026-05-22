@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitops-api
+  template:
+    metadata:
+      labels:
+        app: gitops-api
+    spec:
+      containers:
+      - name: api
+        image: nginx:alpine
