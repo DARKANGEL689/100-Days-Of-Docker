@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: telemetry-svc
+  labels:
+    app: telemetry-api
+spec:
+  ports:
+  - name: web
+    port: 8080
+  selector:
+    app: telemetry-api
