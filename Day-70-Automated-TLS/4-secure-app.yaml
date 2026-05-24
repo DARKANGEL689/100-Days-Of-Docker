@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zero-touch-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zero-touch-api
+  template:
+    metadata:
+      labels:
+        app: zero-touch-api
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=SECURE: Zero-Touch Cryptography Active"]
+        ports:
+        - containerPort: 5678
