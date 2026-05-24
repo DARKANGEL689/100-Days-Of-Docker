@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: zero-touch-gateway
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "enterprise-ca-issuer" 
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - the300protocol.local
+    secretName: auto-generated-tls-secret 
+  rules:
+  - host: the300protocol.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: zero-touch-svc
+            port:
+              number: 80
