@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-worker
+spec:
+  replicas: 0 
+  selector:
+    matchLabels:
+      app: task-processor
+  template:
+    metadata:
+      labels:
+        app: task-processor
+    spec:
+      containers:
+      - name: processor
+        image: alpine
+        command: ["/bin/sh", "-c", "echo 'Worker Booted. Processing Queue...'; sleep 3600"]
