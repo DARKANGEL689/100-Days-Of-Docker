@@ -1,0 +1,16 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: rabbitmq-queue-scaler
+spec:
+  scaleTargetRef:
+    name: queue-worker 
+  minReplicaCount: 0  
+  maxReplicaCount: 10
+  triggers:
+  - type: rabbitmq
+    metadata:
+      queueName: task_queue
+      queueLength: "5" 
+    authenticationRef:
+      name: rabbitmq-auth
