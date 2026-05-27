@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shadow-api
+  template:
+    metadata:
+      labels:
+        app: shadow-api
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=SHADOW API: Dark traffic packet intercepted."]
+        ports:
+        - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shadow-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: shadow-api
