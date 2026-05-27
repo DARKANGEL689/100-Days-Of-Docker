@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: backend-dark-mirror
+spec:
+  hosts:
+  - backend-svc
+  http:
+  - route:
+    - destination:
+        host: backend-svc
+      weight: 100
+    mirror:
+      host: shadow-svc
+    mirrorPercentage:
+      value: 100.0
