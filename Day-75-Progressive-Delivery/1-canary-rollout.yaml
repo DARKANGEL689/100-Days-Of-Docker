@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: enterprise-api
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {} 
+      - setWeight: 50
+      - pause: {duration: 10s}
+  selector:
+    matchLabels:
+      app: rollout-demo
+  template:
+    metadata:
+      labels:
+        app: rollout-demo
+    spec:
+      containers:
+      - name: api
+        image: argoproj/rollouts-demo:blue
+        ports:
+        - containerPort: 8080
