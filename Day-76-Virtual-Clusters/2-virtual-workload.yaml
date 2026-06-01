@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-api
+  namespace: default 
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shadow
+  template:
+    metadata:
+      labels:
+        app: shadow
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=VIRTUAL CLUSTER: Operating inside the Matrix"]
