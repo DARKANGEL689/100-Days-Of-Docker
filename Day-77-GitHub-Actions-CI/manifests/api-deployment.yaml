@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: api
-        image: darkangel689/enterprise-api:latest
+        image: darkangel689/enterprise-api:6e281ee1c1505dc63a287f4e377166f39cec8beb
         ports:
         - containerPort: 3000
