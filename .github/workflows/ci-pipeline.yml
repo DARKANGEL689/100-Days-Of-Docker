@@ -1,0 +1,41 @@
+name: Enterprise CI Pipeline
+
+# 1. THE TRIGGER: When does this pipeline run?
+on:
+  push:
+    paths:
+      - 'Day-77-GitHub-Actions-CI/**' 
+  workflow_dispatch: 
+
+jobs:
+  build-and-test:
+    name: Build, Test, and Package
+    runs-on: ubuntu-latest 
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies & Run Tests
+        working-directory: ./Day-77-GitHub-Actions-CI
+        run: |
+          npm install
+          npm test
+
+      - name: Authenticate with Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Day-77-GitHub-Actions-CI
+          push: true
+          tags: darkangel689/enterprise-api:latest, darkangel689/enterprise-api:${{ github.sha }}
