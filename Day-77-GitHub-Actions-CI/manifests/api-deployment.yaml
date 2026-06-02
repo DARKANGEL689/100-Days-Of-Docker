@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: enterprise-api
+  template:
+    metadata:
+      labels:
+        app: enterprise-api
+    spec:
+      containers:
+      - name: api
+        image: darkangel689/enterprise-api:latest
+        ports:
+        - containerPort: 3000
