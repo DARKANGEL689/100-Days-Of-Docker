@@ -17,3 +17,6 @@ if (require.main === module) {
 }
 
 module.exports = app; 
+app.get('/devsecops', (req, res) => {
+    res.status(200).json({ status: 'SECURE', message: 'Trivy Scanning and Linting Active' });
+});
