@@ -1,30 +1,32 @@
-name: Enterprise CI Pipeline
+name: Enterprise DevSecOps Pipeline
 
-# 1. THE TRIGGER: When does this pipeline run?
 on:
   push:
     paths:
-      - 'Day-77-GitHub-Actions-CI/**' 
-  workflow_dispatch: 
+      - 'Day-77-GitHub-Actions-CI/**'
+      - '!Day-77-GitHub-Actions-CI/manifests/**' 
 
 jobs:
-  build-and-test:
-    name: Build, Test, and Package
-    runs-on: ubuntu-latest 
+  build-test-scan-deploy:
+    name: Build, Scan, and Bridge
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} 
 
-      - name: Setup Node.js Environment
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Dependencies & Run Tests
+      - name: Install & Enforce Quality (Lint & Test)
         working-directory: ./Day-77-GitHub-Actions-CI
         run: |
           npm install
+          npm run lint
           npm test
 
       - name: Authenticate with Docker Hub
@@ -33,9 +35,34 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: Build Docker Image
         uses: docker/build-push-action@v5
         with:
           context: ./Day-77-GitHub-Actions-CI
-          push: true
-          tags: darkangel689/enterprise-api:latest, darkangel689/enterprise-api:${{ github.sha }}
+          push: false 
+          load: true
+          tags: darkangel689/enterprise-api:${{ github.sha }}
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'darkangel689/enterprise-api:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL'
+
+      - name: Push Secure Image to Registry
+        run: docker push darkangel689/enterprise-api:${{ github.sha }}
+
+      - name: The GitOps Bridge (Update K8s Manifest)
+        working-directory: ./Day-77-GitHub-Actions-CI/manifests
+        run: |
+          # Replace the old image tag with the new Git SHA
+          sed -i "s|image: darkangel689/enterprise-api:.*|image: darkangel689/enterprise-api:${{ github.sha }}|g" api-deployment.yaml
+          
+          # Commit and push back to GitHub
+          git config --global user.name 'GitHub Actions Automaton'
+          git config --global user.email 'actions@github.com'
+          git add api-deployment.yaml
+          git commit -m "🤖 Auto-Patch: Updated image tag to ${{ github.sha }} [skip ci]"
+          git push
