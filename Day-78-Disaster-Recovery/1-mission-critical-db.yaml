@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: critical-data-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: financial-database
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-db
+  template:
+    metadata:
+      labels:
+        app: finance-db
+      annotations:
+        backup.velero.io/backup-volumes: db-storage
+    spec:
+      containers:
+      - name: db
+        image: alpine
+        command: ["/bin/sh", "-c", "sleep 3600"]
+        volumeMounts:
+        - name: db-storage
+          mountPath: /data
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: critical-data-pvc
