@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rogue-billing-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: expensive-api
+  template:
+    metadata:
+      labels:
+        app: expensive-api
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        resources:
+          requests:
+            cpu: "4" 
+            memory: "8Gi" 
