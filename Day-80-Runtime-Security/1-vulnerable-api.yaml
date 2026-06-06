@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: innocent-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: innocent-api
+  template:
+    metadata:
+      labels:
+        app: innocent-api
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
