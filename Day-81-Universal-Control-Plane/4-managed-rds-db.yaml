@@ -1,0 +1,20 @@
+apiVersion: rds.aws.upbound.io/v1beta1
+kind: Instance
+metadata:
+  name: enterprise-core-db
+spec:
+  forProvider:
+    region: us-east-1
+    engine: postgres
+    engineVersion: "14.7"
+    instanceClass: db.t3.micro
+    allocatedStorage: 20
+    skipFinalSnapshot: true
+    publiclyAccessible: false
+    tags:
+      Environment: Production
+  providerConfigRef:
+    name: default
+  writeConnectionSecretToRef:
+    namespace: default
+    name: db-connection-secret
