@@ -1,0 +1,12 @@
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: enterprise-alpha-vault-81
+spec:
+  forProvider:
+    region: us-east-1
+    tags:
+      Environment: Production
+      Department: Platform Engineering
+  providerConfigRef:
+    name: default
