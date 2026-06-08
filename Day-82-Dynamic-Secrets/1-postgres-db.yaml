@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14-alpine
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "supersecretroot" 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres
