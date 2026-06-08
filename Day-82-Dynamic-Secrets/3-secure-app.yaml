@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-api
+  template:
+    metadata:
+      labels:
+        app: secure-api
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "app-role"
+        vault.hashicorp.com/agent-inject-secret-database-config.txt: "database/creds/app-role"
+        vault.hashicorp.com/agent-inject-template-database-config.txt: |
+          {{- with secret "database/creds/app-role" -}}
+          POSTGRES_USER={{ .Data.username }}
+          POSTGRES_PASSWORD={{ .Data.password }}
+          {{- end -}}
+    spec:
+      serviceAccountName: vault-auth-sa
+      containers:
+      - name: app
+        image: alpine
+        command: ["/bin/sh", "-c", "sleep 3600"]
