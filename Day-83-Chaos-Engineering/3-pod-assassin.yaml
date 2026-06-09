@@ -1,0 +1,13 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: random-pod-assassin
+  namespace: default
+spec:
+  action: pod-kill
+  mode: one 
+  selector:
+    labelSelectors:
+      app: robust-api
+  scheduler:
+    cron: "@every 15s" 
