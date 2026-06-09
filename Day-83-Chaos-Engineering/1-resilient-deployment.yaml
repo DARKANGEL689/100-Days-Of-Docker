@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaos-victim
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: robust-api
+  template:
+    metadata:
+      labels:
+        app: robust-api
+    spec:
+      containers:
+      - name: api
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
