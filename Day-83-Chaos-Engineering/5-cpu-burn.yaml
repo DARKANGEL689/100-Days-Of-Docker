@@ -1,0 +1,14 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: cpu-burn
+  namespace: default
+spec:
+  mode: all
+  selector:
+    labelSelectors:
+      app: robust-api
+  stressors:
+    cpu:
+      workers: 2
+      load: 100
