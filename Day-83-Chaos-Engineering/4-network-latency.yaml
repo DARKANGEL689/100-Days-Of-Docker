@@ -1,0 +1,20 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-degradation
+  namespace: default
+spec:
+  action: delay
+  mode: all
+  selector:
+    labelSelectors:
+      app: robust-api
+  delay:
+    latency: '200ms'
+    correlation: '100'
+    jitter: '50ms'
+  direction: to
+  target:
+    selector:
+      namespaces:
+        - default
