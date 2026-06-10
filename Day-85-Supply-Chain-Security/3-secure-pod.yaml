@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-workload
+spec:
+  containers:
+  - name: app
+    image: darkangel689/alpha-node:signed
+    command: ["sleep", "3600"]
