@@ -1,0 +1,21 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: strict-payroll-l7-guard
+  namespace: default
+spec:
+  endpointSelector:
+    matchLabels:
+      app: payroll
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+    toPorts:
+    - ports:
+      - port: "5678"
+        protocol: TCP
+      rules:
+        http:
+        - method: "GET"
+          path: "/public"
