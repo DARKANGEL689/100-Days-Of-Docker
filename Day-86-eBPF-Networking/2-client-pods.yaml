@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-app
+  labels:
+    app: frontend
+spec:
+  containers:
+  - name: client
+    image: curlimages/curl:latest
+    command: ["sleep", "3600"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-hacker
+  labels:
+    app: hacker
+spec:
+  containers:
+  - name: client
+    image: curlimages/curl:latest
+    command: ["sleep", "3600"]
