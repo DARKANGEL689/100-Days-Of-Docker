@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payroll-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payroll
+  template:
+    metadata:
+      labels:
+        app: payroll
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=PAYROLL API: Secure Response."]
+        ports:
+        - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payroll-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: payroll
