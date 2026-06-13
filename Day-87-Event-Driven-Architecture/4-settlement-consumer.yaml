@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: settlement-consumer
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+      - name: consumer
+        image: quay.io/strimzi/kafka:0.38.0-kafka-3.6.0
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Initializing Settlement Consumer..."
+            bin/kafka-console-consumer.sh --bootstrap-server enterprise-broker-kafka-bootstrap.kafka.svc:9092 --topic transaction-ledger --group settlement-group
