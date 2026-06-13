@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-producer
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+      - name: producer
+        image: quay.io/strimzi/kafka:0.38.0-kafka-3.6.0
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Initializing Payment Producer..."
+            while true; do
+              TXN="{\"id\":\"TXN-$RANDOM\", \"amount\":$((RANDOM%5000)).00, \"status\":\"PENDING\"}"
+              echo $TXN | bin/kafka-console-producer.sh --broker-list enterprise-broker-kafka-bootstrap.kafka.svc:9092 --topic transaction-ledger
+              echo "Fired event into queue: $TXN"
+              sleep 2
+            done
