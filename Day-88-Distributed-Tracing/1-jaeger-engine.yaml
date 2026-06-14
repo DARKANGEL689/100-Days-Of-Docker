@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-jaeger
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:latest
+        env:
+        - name: COLLECTOR_ZIPKIN_HOST_PORT
+          value: ":9411"
+        ports:
+        - containerPort: 16686 
+        - containerPort: 14268 
+        - containerPort: 4317  
+        - containerPort: 4318  
