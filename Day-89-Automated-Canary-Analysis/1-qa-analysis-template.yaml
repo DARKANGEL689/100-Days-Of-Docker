@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: external-qa-gate
+spec:
+  args:
+  - name: qa-status-url 
+  metrics:
+  - name: integration-test
+    count: 2            
+    interval: 5s       
+    failureLimit: 0     
+    provider:
+      web:
+        url: "{{args.qa-status-url}}"
