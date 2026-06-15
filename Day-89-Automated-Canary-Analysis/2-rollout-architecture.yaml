@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: enterprise-api
+spec:
+  replicas: 4
+  strategy:
+    canary:
+      steps:
+      - setWeight: 25
+      - analysis: 
+          templates:
+          - templateName: external-qa-gate
+          args:
+          - name: qa-status-url
+            value: "https://httpstat.us/200" 
+      - setWeight: 100
+  selector:
+    matchLabels:
+      app: aca-demo
+  template:
+    metadata:
+      labels:
+        app: aca-demo
+    spec:
+      containers:
+      - name: api
+        image: argoproj/rollouts-demo:blue 
+        ports:
+        - containerPort: 8080
