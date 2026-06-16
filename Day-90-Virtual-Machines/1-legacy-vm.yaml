@@ -1,0 +1,26 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: enterprise-legacy-vm
+  labels:
+    kubevirt.io/vm: enterprise-legacy-vm
+spec:
+  running: true 
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: enterprise-legacy-vm
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+        resources:
+          requests:
+            memory: 128Mi
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: kubevirt/cirros-container-disk-demo
