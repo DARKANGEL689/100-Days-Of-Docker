@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-monolith
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monolith
+  template:
+    metadata:
+      labels:
+        app: monolith
+    spec:
+      containers:
+      - name: engine
+        image: alpine
+        command: ["/bin/sh", "-c"]
+        args: ["echo 'Monolith Online.'; while true; do dd if=/dev/zero of=/dev/null bs=1M count=100 2>/dev/null; done"]
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "50Mi"
