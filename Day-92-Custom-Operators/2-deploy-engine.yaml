@@ -1,0 +1,7 @@
+apiVersion: protocol.com/v1
+kind: AntigravityEngine
+metadata:
+  name: mark-iv-prototype
+spec:
+  thrustLevel: maximum
+  plasmaCore: true
