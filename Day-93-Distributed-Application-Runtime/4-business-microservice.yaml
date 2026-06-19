@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: business-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: business-logic
+  template:
+    metadata:
+      labels:
+        app: business-logic
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "business-app" 
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: app
+        image: curlimages/curl:latest
+        command: ["sleep", "3600"]
