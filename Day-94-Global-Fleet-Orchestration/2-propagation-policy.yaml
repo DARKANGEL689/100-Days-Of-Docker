@@ -1,0 +1,17 @@
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: global-api-propagation
+  namespace: default
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: global-enterprise-api
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - member1
+    replicaScheduling:
+      replicaDivisionPreference: Aggregated
+      replicaSchedulingType: Divided
