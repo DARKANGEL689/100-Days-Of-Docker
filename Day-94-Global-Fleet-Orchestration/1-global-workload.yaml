@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: global-enterprise-api
+  namespace: default
+spec:
+  replicas: 4 
+  selector:
+    matchLabels:
+      app: global-api
+  template:
+    metadata:
+      labels:
+        app: global-api
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=GLOBAL ROUTING SUCCESSFUL: Payload delivered from the Edge."]
