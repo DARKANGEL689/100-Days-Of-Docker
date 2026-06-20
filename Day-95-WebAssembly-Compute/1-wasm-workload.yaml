@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hyper-speed-wasm-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasm-api
+  template:
+    metadata:
+      labels:
+        app: wasm-api
+    spec:
+      runtimeClassName: wasmedge
+      containers:
+      - name: wasm-app
+        image: wasmedge/example-wasi:latest
+        ports:
+        - containerPort: 8080
