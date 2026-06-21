@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: enterprise-ledger-api
+  description: Asynchronous Kafka producer for transaction settlements.
+  tags:
+    - java
+    - spring-boot
+    - kafka
+    - dapr
+spec:
+  type: service
+  lifecycle: production
+  owner: core-payments-team
+  system: payment-processing-core
+  dependsOn:
+    - component:vault-secrets-engine
