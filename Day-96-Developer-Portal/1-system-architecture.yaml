@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Domain
+metadata:
+  name: financial-services
+  description: All systems related to enterprise financial routing and ledgers.
+spec:
+  owner: enterprise-architecture-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: payment-processing-core
+  description: The core payment gateway and settlement engine.
+spec:
+  owner: core-payments-team
+  domain: financial-services
