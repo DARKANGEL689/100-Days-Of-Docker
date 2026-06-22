@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: enterprise-ml-factory-
+spec:
+  entrypoint: ml-pipeline
+  templates:
+  - name: ml-pipeline
+    dag:
+      tasks:
+      - name: ingest-data
+        template: ingest
+      - name: train-model
+        dependencies: [ingest-data]
+        template: train
+      - name: validate-model
+        dependencies: [train-model]
+        template: validate
+
+  - name: ingest
+    container:
+      image: alpine:latest
+      command: [sh, -c, "echo 'Ingesting Financial Data...'; sleep 2"]
+
+  - name: train
+    container:
+      image: python:3.9-slim
+      command: [sh, -c, "echo 'Training Model...'; sleep 5"]
+
+  - name: validate
+    container:
+      image: alpine:latest
+      command: [sh, -c, "echo 'Validating Accuracy... PASS'; sleep 2"]
