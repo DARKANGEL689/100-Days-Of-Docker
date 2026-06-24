@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-billing-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+      - name: api
+        image: nginx-alpine-typo-version:latest 
+        env:
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secure-vault-keys 
+              key: password
+        volumeMounts:
+        - name: data-storage
+          mountPath: /var/lib/data
+      volumes:
+      - name: data-storage
+        persistentVolumeClaim:
+          claimName: ghost-drive-pvc 
