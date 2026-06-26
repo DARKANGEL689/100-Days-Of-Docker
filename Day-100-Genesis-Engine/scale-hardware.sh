@@ -1,7 +1,5 @@
 #!/bin/bash
-echo "Executing physical hardware scale-out on the Child Cluster..."
-
-kubectl scale machinedeployment enterprise-alpha-md-0 --replicas=4
-
-echo "Hardware scale-out initiated."
-echo "Run './audit-genesis.sh' to watch the Management Cluster provision two brand new physical nodes!"
+echo "Executing the Final Teardown Sequence..."
+kubectl delete -f 2-enterprise-alpha-cluster.yaml
+echo "Child cluster annihilated."
+echo "The 100-Day Protocol is officially concluded."
