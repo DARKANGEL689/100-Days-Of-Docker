@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-intelligence-core
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-server
+  template:
+    metadata:
+      labels:
+        app: vllm-server
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+        args: 
+          - "--model"
+          - "Qwen/Qwen2.5-1.5B-Instruct"
+          - "--dtype"
+          - "half"
+          - "--max-model-len"
+          - "1024"
+          - "--gpu-memory-utilization"
+          - "0.85"
+          - "--enforce-eager"
+        ports:
+        - containerPort: 8000
+        
