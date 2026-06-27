@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-script
+  namespace: default
+data:
+  agent.py: |
+    import os
+    import json
+    from kubernetes import client, config
+    from openai import OpenAI
+
+    # 1. Connect to the Local Kubernetes API using the Pod's ServiceAccount
+    config.load_incluster_config()
+    k8s_api = client.CoreV1Api()
+
+    # 2. Connect to the localized vLLM Engine (Deployed on Day 101)
+    llm_client = OpenAI(
+        api_key="EMPTY",
+        base_url="http://vllm-api-svc.default.svc.cluster.local:8000/v1",
+    )
+
+    # 3. Define the Physical Tool
+    def get_cluster_status(namespace="default"):
+        print(f"[SYSTEM] AI requested execution of 'get_cluster_status' for namespace: {namespace}")
+        pods = k8s_api.list_namespaced_pod(namespace)
+        status_report = []
+        for pod in pods.items:
+            status_report.append({"name": pod.metadata.name, "status": pod.status.phase})
+        return json.dumps(status_report)
+
+    # 4. Define the Tool Schema for the LLM
+    tools = [{
+        "type": "function",
+        "function": {
+            "name": "get_cluster_status",
+            "description": "Get the current running status of all Kubernetes pods in a specific namespace.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "namespace": {"type": "string", "description": "The kubernetes namespace, e.g., default or kube-system"}
+                },
+                "required": ["namespace"]
+            }
+        }
+    }]
+
+    # 5. The Agentic Loop
+    print("[AGENT] Waking up. Analyzing directives...")
+    messages = [
+        {"role": "system", "content": "You are a DevOps AI. You manage Kubernetes. Use tools to answer questions."},
+        {"role": "user", "content": "Can you check if there are any pods running in the default namespace right now?"}
+    ]
+
+    response = llm_client.chat.completions.create(
+        model="Qwen/Qwen2.5-1.5B-Instruct",
+        messages=messages,
+        tools=tools
+    )
+
+    response_message = response.choices[0].message
+
+    # 6. Tool Execution Interception
+    if response_message.tool_calls:
+        for tool_call in response_message.tool_calls:
+            if tool_call.function.name == "get_cluster_status":
+                args = json.loads(tool_call.function.arguments)
+                tool_result = get_cluster_status(args.get("namespace", "default"))
+                
+                # Feed the physical data back into the LLM's brain
+                messages.append(response_message)
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": "get_cluster_status",
+                    "content": tool_result
+                })
+                
+                print("[AGENT] Data retrieved. Synthesizing final response...")
+                final_response = llm_client.chat.completions.create(
+                    model="Qwen/Qwen2.5-1.5B-Instruct",
+                    messages=messages
+                )
+                print(f"\n[AI SRE REPORT]: {final_response.choices[0].message.content}\n")
+    else:
+        print(f"\n[AI RESPONSE]: {response_message.content}\n")
