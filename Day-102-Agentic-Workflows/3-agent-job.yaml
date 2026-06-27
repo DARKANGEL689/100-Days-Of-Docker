@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: autonomous-diagnostics-run
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: autonomous-agent-sa
+      containers:
+      - name: python-agent
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: 
+          - "pip install --quiet openai kubernetes && python /app/agent.py"
+        volumeMounts:
+        - name: script-volume
+          mountPath: /app
+      restartPolicy: Never
+      volumes:
+      - name: script-volume
+        configMap:
+          name: agent-script
