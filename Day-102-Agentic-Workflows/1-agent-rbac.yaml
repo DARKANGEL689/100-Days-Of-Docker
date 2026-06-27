@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autonomous-agent-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-cluster-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "nodes"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-cluster-reader-binding
+subjects:
+- kind: ServiceAccount
+  name: autonomous-agent-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: ai-cluster-reader
+  apiGroup: rbac.authorization.k8s.io
