@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-python-scripts
+  namespace: default
+data:
+  ingest.py: |
+    import os
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import Distance, VectorParams, PointStruct
+    from sentence_transformers import SentenceTransformer
+
+    print("[INGESTION] Connecting to Qdrant Vector DB...")
+    client = QdrantClient(host="enterprise-memory-qdrant", port=6333)
+    
+    # We use a hyper-lightweight offline embedding model
+    print("[INGESTION] Loading Embedding Model...")
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+
+    print("[INGESTION] Creating 'enterprise_docs' collection...")
+    client.recreate_collection(
+        collection_name="enterprise_docs",
+        vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+    )
+
+    # Highly classified Enterprise Data that the LLM has never seen
+    proprietary_data = [
+        "The production Postgres database password is 'Delta-77-Alpha-Omega'.",
+        "If the East Coast datacenter fails, traffic must be routed to 'us-west-2'.",
+        "The Chief Architect's override clearance code is 'Protocol-300'."
+    ]
+
+    points = []
+    for i, doc in enumerate(proprietary_data):
+        vector = model.encode(doc).tolist()
+        points.append(PointStruct(id=i, vector=vector, payload={"text": doc}))
+
+    client.upsert(collection_name="enterprise_docs", points=points)
+    print("[INGESTION] SUCCESS: Proprietary knowledge embedded and stored in long-term memory.")
+
+  agent.py: |
+    import json
+    from qdrant_client import QdrantClient
+    from sentence_transformers import SentenceTransformer
+    from openai import OpenAI
+
+    print("[AGENT] Initializing neural links...")
+    llm_client = OpenAI(api_key="EMPTY", base_url="http://vllm-api-svc.default.svc.cluster.local:8000/v1")
+    qdrant = QdrantClient(host="enterprise-memory-qdrant", port=6333)
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+
+    def query_long_term_memory(query_text):
+        print(f"[SYSTEM] Agent searching Vector DB for: '{query_text}'")
+        vector = model.encode(query_text).tolist()
+        results = qdrant.search(collection_name="enterprise_docs", query_vector=vector, limit=1)
+        if results:
+            return results[0].payload["text"]
+        return "No relevant internal data found."
+
+    tools = [{
+        "type": "function",
+        "function": {
+            "name": "query_long_term_memory",
+            "description": "Search the internal enterprise knowledge base for passwords, codes, and protocols.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query_text": {"type": "string", "description": "The search query to look up."}
+                },
+                "required": ["query_text"]
+            }
+        }
+    }]
+
+    messages = [
+        {"role": "system", "content": "You are a secure Enterprise AI. Use your tools to answer internal questions."},
+        {"role": "user", "content": "What is the production Postgres database password? Do not guess."}
+    ]
+
+    print("[AGENT] Processing User Request...")
+    response = llm_client.chat.completions.create(
+        model="Qwen/Qwen2.5-1.5B-Instruct",
+        messages=messages,
+        tools=tools
+    )
+
+    response_message = response.choices[0].message
+
+    if response_message.tool_calls:
+        for tool_call in response_message.tool_calls:
+            if tool_call.function.name == "query_long_term_memory":
+                args = json.loads(tool_call.function.arguments)
+                tool_result = query_long_term_memory(args.get("query_text"))
+                
+                messages.append(response_message)
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": "query_long_term_memory",
+                    "content": tool_result
+                })
+                
+                print("[AGENT] Memory retrieved. Generating final response...")
+                final_response = llm_client.chat.completions.create(
+                    model="Qwen/Qwen2.5-1.5B-Instruct",
+                    messages=messages
+                )
+                print(f"\n[AI REPORT]: {final_response.choices[0].message.content}\n")
