@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: autonomous-repair-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: repair-agent
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["pip install openai && python /app/repair-agent.py"]
+        volumeMounts:
+        - name: source-code
+          mountPath: /app
+      volumes:
+      - name: source-code
+        hostPath:
+          path: /d/100-Days-Of-Docker/src-repo
+      restartPolicy: Never
