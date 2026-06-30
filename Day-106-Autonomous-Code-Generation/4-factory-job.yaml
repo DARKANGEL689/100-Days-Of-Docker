@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: autonomous-software-factory
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      initContainers:
+      - name: ai-builder
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["pip install --quiet openai && python /scripts/2-builder-agent.py"]
+        volumeMounts:
+        - name: shared-workspace
+          mountPath: /workspace/output
+        - name: intent-volume
+          mountPath: /workspace/intent
+        - name: scripts-volume
+          mountPath: /scripts
+      containers:
+      - name: gitops-publisher
+        image: alpine/git:latest
+        command: ["/bin/sh", "/scripts/3-gitops-publisher.sh"]
+        volumeMounts:
+        - name: shared-workspace
+          mountPath: /workspace/output
+        - name: scripts-volume
+          mountPath: /scripts
+      restartPolicy: Never
+      volumes:
+      - name: shared-workspace
+        emptyDir: {}
+      - name: intent-volume
+        configMap:
+          name: architect-intent
+      - name: scripts-volume
+        configMap:
+          name: factory-scripts
