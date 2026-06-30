@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: architect-intent
+  namespace: default
+data:
+  specification.txt: |
+    Create a complete Python FastAPI microservice named 'enterprise-auth-api'.
+    It must include:
+    1. app.py: A FastAPI server with a GET /health endpoint and a POST /verify endpoint that accepts a JSON token.
+    2. requirements.txt: Dependencies.
+    3. Dockerfile: A secure, multi-stage Alpine Linux build.
+    4. deployment.yaml: A Kubernetes Deployment and Service for this app, exposed on port 80.
+    
+    Output each file clearly wrapped in XML tags like <file name="app.py">...</file>.
