@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-datasource
+  namespace: default
+  labels:
+    grafana_datasource: "1"
+data:
+  clickhouse.yaml: |-
+    apiVersion: 1
+    datasources:
+      - name: ClickHouse-Analytics
+        type: grafana-clickhouse-datasource
+        access: proxy
+        # Pointing directly to the internal Kubernetes DNS of Day 108's cluster
+        url: http://chi-enterprise-analytics-real-time-cluster-0-0:8123
+        jsonData:
+          defaultDatabase: default
+          username: default
