@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fraud-ops-dashboard
+  namespace: default
+  labels:
+    grafana_dashboard: "1"
+data:
+  fraud-ops.json: |-
+    {
+      "title": "Real-Time Enterprise Fraud Operations",
+      "tags": ["security", "streaming"],
+      "timezone": "browser",
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "In-Flight Transaction Volume (Kafka -> ClickHouse)",
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "datasource": "ClickHouse-Analytics",
+              "query": "SELECT $__timeGroup(ingestion_time, '1m') AS time, sum(amount) AS total_volume FROM transaction_ledger WHERE status = 'PENDING' GROUP BY time ORDER BY time",
+              "rawQuery": true
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "High-Risk Anomalies Detected",
+          "gridPos": { "h": 6, "w": 12, "x": 0, "y": 9 },
+          "targets": [
+            {
+              "datasource": "ClickHouse-Analytics",
+              "query": "SELECT count() FROM transaction_ledger WHERE amount > 10000",
+              "rawQuery": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ]
+              }
+            }
+          }
+        }
+      ]
+    }
