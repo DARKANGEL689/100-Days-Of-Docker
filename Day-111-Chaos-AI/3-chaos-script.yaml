@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chaos-agent-script
+  namespace: default
+data:
+  agent.py: |
+    import time
+    import random
+    from kubernetes import client, config
+    from openai import OpenAI
+
+    # 1. Connect to Cluster & Intelligence Core
+    config.load_incluster_config()
+    v1 = client.CoreV1Api()
+    llm = OpenAI(api_key="EMPTY", base_url="http://vllm-api-svc.default.svc.cluster.local:8000/v1")
+
+    print("[ADVERSARY] Initializing localized chaos matrix. Scanning for targets...")
+    pods = v1.list_namespaced_pod("default", label_selector="app=target")
+    
+    if not pods.items:
+        print("[ADVERSARY] No valid targets found. Aborting.")
+        exit(0)
+
+    # 2. Acquire & Terminate Target
+    target = random.choice(pods.items)
+    target_name = target.metadata.name
+
+    print(f"[ADVERSARY] Target acquired: {target_name}. Initiating termination sequence...")
+    start_time = time.time()
+    
+    v1.delete_namespaced_pod(target_name, "default")
+    print(f"[ADVERSARY] Kinetic strike confirmed. Pod {target_name} assassinated.")
+
+    # 3. Observe Self-Healing Loop
+    print("[ADVERSARY] Observing ReplicaSet self-healing capabilities...")
+    recovered = False
+    while not recovered:
+        time.sleep(1)
+        current_pods = v1.list_namespaced_pod("default", label_selector="app=target")
+        running_pods = [p for p in current_pods.items if p.status.phase == "Running"]
+        if len(running_pods) >= 3:
+            recovered = True
+    
+    recovery_time = round(time.time() - start_time, 2)
+    print(f"[ADVERSARY] Control Plane successfully regenerated capacity in {recovery_time} seconds.")
+
+    # 4. Synthesize AI Post-Mortem
+    print("[ADVERSARY] Transmitting telemetry to Core for SITREP synthesis...")
+    prompt = (
+        f"You are a Chaos Engineering AI. You just autonomously deleted the Kubernetes pod '{target_name}'. "
+        f"The cluster detected the failure and regenerated a replacement pod, restoring full capacity in {recovery_time} seconds. "
+        "Write a highly technical, 2-sentence military-style SITREP (Situation Report) analyzing this self-healing event."
+    )
+
+    response = llm.chat.completions.create(
+        model="Qwen/Qwen2.5-1.5B-Instruct",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    print("\n=== AI SITUATION REPORT ===")
+    print(response.choices[0].message.content)
+    print("===========================\n")
