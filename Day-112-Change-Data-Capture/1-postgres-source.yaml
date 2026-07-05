@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-oltp-db
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-oltp
+  template:
+    metadata:
+      labels:
+        app: postgres-oltp
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: enterprise_vault
+        - name: POSTGRES_USER
+          value: db_operator
+        - name: POSTGRES_PASSWORD
+          value: VaultSecure99!
+        command: ["postgres"]
+        args: ["-c", "wal_level=replica", "-c", "max_wal_senders=4", "-c", "max_replication_slots=4"]
+        ports:
+        - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-oltp-svc
+  namespace: default
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres-oltp
