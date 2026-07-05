@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium-cdc-engine
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium-connect
+  template:
+    metadata:
+      labels:
+        app: debezium-connect
+    spec:
+      containers:
+      - name: debezium
+        image: debezium/connect:2.4
+        env:
+        - name: BOOTSTRAP_SERVERS
+          value: "kafka-cluster-kafka-brokers.default.svc:9092"
+        - name: GROUP_ID
+          value: "cdc_infrastructure_group"
+        - name: CONFIG_STORAGE_TOPIC
+          value: "cdc_storage_config"
+        - name: OFFSET_STORAGE_TOPIC
+          value: "cdc_storage_offsets"
+        - name: STATUS_STORAGE_TOPIC
+          value: "cdc_storage_status"
+        ports:
+        - containerPort: 8083
