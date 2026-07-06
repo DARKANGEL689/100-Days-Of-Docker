@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grid-client-scripts
+  namespace: default
+data:
+  client.py: |
+    import hazelcast
+    import time
+    import logging
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("[GRID-CLIENT]")
+
+    logger.info("Initializing connection to Hazelcast In-Memory Data Grid...")
+    # The client connects to the headless Kubernetes service
+    client = hazelcast.HazelcastClient(
+        cluster_name="dev",
+        cluster_members=["hazelcast-svc.default.svc.cluster.local"]
+    )
+
+    logger.info("Connection established. Accessing distributed map: 'trading_sessions'")
+    trading_map = client.get_map("trading_sessions").blocking()
+
+    logger.info("Initiating High-Velocity Memory Injection (1,000 records)...")
+    start_time = time.time()
+    
+    # Simulating the storage of rapid trading session tokens
+    for i in range(1000):
+        trading_map.put(f"session_{i}", f"TOKEN-AUTH-VALID-{time.time()}")
+    
+    write_time = round((time.time() - start_time) * 1000, 2)
+    logger.info(f"Injection complete. 1,000 records sharded across cluster RAM in {write_time} ms.")
+
+    logger.info("Verifying Sub-Millisecond Retrieval...")
+    read_start = time.time()
+    token = trading_map.get("session_777")
+    read_time = round((time.time() - read_start) * 1000, 4)
+
+    logger.info(f"Target Acquired: {token}")
+    logger.info(f"Retrieval Latency: {read_time} milliseconds.")
+
+    logger.info("Client detaching from Data Grid.")
+    client.shutdown()
