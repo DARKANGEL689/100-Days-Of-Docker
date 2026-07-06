@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: enterprise-grid
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hazelcast-node
+  serviceName: hazelcast-svc
+  template:
+    metadata:
+      labels:
+        app: hazelcast-node
+    spec:
+      containers:
+      - name: hazelcast
+        image: hazelcast/hazelcast:5.3
+        ports:
+        - containerPort: 5701 
+        env:
+        - name: HZ_NETWORK_JOIN_KUBERNETES_ENABLED
+          value: "true"
+        - name: HZ_NETWORK_JOIN_KUBERNETES_SERVICENAME
+          value: "hazelcast-svc"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hazelcast-svc
+  namespace: default
+spec:
+  clusterIP: None 
+  selector:
+    app: hazelcast-node
+  ports:
+  - port: 5701
+    name: hazelcast
