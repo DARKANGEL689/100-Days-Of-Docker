@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: grid-latency-test
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: python-client
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["pip install --quiet hazelcast-python-client && python /app/client.py"]
+        volumeMounts:
+        - name: script-volume
+          mountPath: /app
+      restartPolicy: Never
+      volumes:
+      - name: script-volume
+        configMap:
+          name: grid-client-scripts
