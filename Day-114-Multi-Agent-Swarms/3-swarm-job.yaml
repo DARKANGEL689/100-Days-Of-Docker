@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: multi-agent-swarm-run
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: python-swarm
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["pip install --quiet openai && python /scripts/swarm.py"]
+        volumeMounts:
+        - name: output-workspace
+          mountPath: /workspace/output
+        - name: intent-volume
+          mountPath: /workspace/intent
+        - name: scripts-volume
+          mountPath: /scripts
+      restartPolicy: Never
+      volumes:
+      - name: output-workspace
+        emptyDir: {}
+      - name: intent-volume
+        configMap:
+          name: swarm-intent
+      - name: scripts-volume
+        configMap:
+          name: swarm-scripts
