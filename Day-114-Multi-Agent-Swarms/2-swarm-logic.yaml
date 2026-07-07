@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swarm-scripts
+  namespace: default
+data:
+  swarm.py: |
+    import os
+    from openai import OpenAI
+
+    # Connect to our localized vLLM Engine (Day 101)
+    llm = OpenAI(api_key="EMPTY", base_url="http://vllm-api-svc.default.svc.cluster.local:8000/v1")
+
+    def chat(persona, prompt, memory):
+        messages = [{"role": "system", "content": persona}] + memory + [{"role": "user", "content": prompt}]
+        response = llm.chat.completions.create(
+            model="Qwen/Qwen2.5-1.5B-Instruct",
+            messages=messages,
+            temperature=0.3
+        )
+        return response.choices[0].message.content
+
+    print("[SWARM CONTROL] Initializing Collective Intelligence...")
+    with open("/workspace/intent/task.txt", "r") as f:
+        task = f.read()
+
+    # 1. The Architect
+    architect_persona = "You are a Lead Solutions Architect. Break down the user's task into a strict 3-step technical specification for an engineer."
+    print("\n[ARCHITECT] Analyzing business requirements...")
+    spec = chat(architect_persona, task, [])
+    print(f"\n[ARCHITECT SPECIFICATION]:\n{spec}")
+
+    # 2. The Engineer & Auditor Loop
+    engineer_persona = "You are a Senior Python Engineer. Write the code exactly as the Architect specified. Do not use markdown, output only raw code."
+    auditor_persona = "You are a ruthless Security Auditor. Review the code. If there are any SQL injection risks, lack of error handling, or performance bottlenecks, explain the flaw. If the code is perfect, reply with exactly one word: 'APPROVED'."
+
+    memory = [{"role": "user", "content": f"Here is the spec: {spec}"}]
+    
+    max_iterations = 3
+    for i in range(max_iterations):
+        print(f"\n[SWARM] --- Iteration {i+1} ---")
+        
+        # Engineer writes/fixes code
+        print("[ENGINEER] Synthesizing codebase...")
+        code = chat(engineer_persona, "Write the code.", memory)
+        
+        # Auditor reviews
+        print("[AUDITOR] Executing security static analysis...")
+        review = chat(auditor_persona, f"Review this code:\n{code}", [])
+        
+        if "APPROVED" in review.upper():
+            print("\n[AUDITOR] Code meets all Enterprise security standards. APPROVED.")
+            with open("/workspace/output/migration_script.py", "w") as f:
+                f.write(code)
+            print("\n[SWARM CONTROL] Consensus reached. Payload committed to disk.")
+            break
+        else:
+            print(f"\n[AUDITOR REJECTION]:\n{review}")
+            print("\n[SWARM CONTROL] Security failure detected. Routing feedback back to Engineer...")
+            memory.append({"role": "assistant", "content": code})
+            memory.append({"role": "user", "content": f"The Auditor rejected your code with this feedback: {review}. Rewrite it to fix these flaws."})
