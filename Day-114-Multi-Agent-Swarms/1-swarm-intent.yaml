@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swarm-intent
+  namespace: default
+data:
+  task.txt: |
+    Write a Python script to migrate 10 million user records from MongoDB to PostgreSQL. 
+    It must be multi-threaded, highly secure, and prevent SQL injection.
