@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-supergraph-router
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supergraph-router
+  template:
+    metadata:
+      labels:
+        app: supergraph-router
+    spec:
+      containers:
+      - name: router
+        image: ghcr.io/apollographql/router:v1.30.0
+        args:
+        - "--supergraph"
+        - "/dist/schema/supergraph.graphql"
+        ports:
+        - containerPort: 4000
+        volumeMounts:
+        - name: schema-volume
+          mountPath: /dist/schema
+      volumes:
+      - name: schema-volume
+        configMap:
+          name: supergraph-schema
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supergraph-router-svc
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    targetPort: 4000
+  selector:
+    app: supergraph-router
