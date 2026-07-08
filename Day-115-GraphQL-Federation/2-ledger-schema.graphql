@@ -1,0 +1,13 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+
+type Transaction {
+  id: ID!
+  amount: Float!
+  status: String!
+}
+
+# The Ledger API "extends" the User type from the Users API!
+type User @key(fields: "id") {
+  id: ID!
+  transactions: [Transaction]
+}
