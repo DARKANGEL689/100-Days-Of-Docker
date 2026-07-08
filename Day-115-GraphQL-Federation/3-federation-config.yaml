@@ -1,0 +1,10 @@
+federation_version: =2.0.0
+subgraphs:
+  users:
+    routing_url: http://users-api.default.svc.cluster.local:4000/graphql
+    schema:
+      file: 1-users-schema.graphql
+  ledger:
+    routing_url: http://ledger-api.default.svc.cluster.local:4000/graphql
+    schema:
+      file: 2-ledger-schema.graphql
