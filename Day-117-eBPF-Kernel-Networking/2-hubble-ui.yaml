@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubble-ui-expose
+  namespace: kube-system
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 12000
+    name: http
+  selector:
+    k8s-app: hubble-ui
