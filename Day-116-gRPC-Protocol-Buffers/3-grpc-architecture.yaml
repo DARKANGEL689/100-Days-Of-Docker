@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-grpc-core
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-server
+  template:
+    metadata:
+      labels:
+        app: grpc-server
+    spec:
+      initContainers:
+      - name: proto-compiler
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: 
+          - "pip install --quiet grpcio-tools && python -m grpc_tools.protoc -I/proto --python_out=/compiled --grpc_python_out=/compiled /proto/fraud_check.proto"
+        volumeMounts:
+        - name: proto-volume
+          mountPath: /proto
+        - name: compiled-volume
+          mountPath: /compiled
+      containers:
+      - name: grpc-server
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["pip install --quiet grpcio && cp /scripts/server.py /compiled/ && cd /compiled && python server.py"]
+        ports:
+        - containerPort: 50051
+        volumeMounts:
+        - name: compiled-volume
+          mountPath: /compiled
+        - name: scripts-volume
+          mountPath: /scripts
+      volumes:
+      - name: proto-volume
+        configMap:
+          name: grpc-proto-schema
+      - name: scripts-volume
+        configMap:
+          name: grpc-python-logic
+      - name: compiled-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-grpc-svc
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  ports:
+  - port: 50051
+    targetPort: 50051
+    appProtocol: grpc 
+  selector:
+    app: grpc-server
