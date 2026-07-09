@@ -1,0 +1,23 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: enforce-grpc-zero-trust
+  namespace: default
+spec:
+  description: "Kernel-level Zero Trust for Fraud Detection gRPC Streams"
+  endpointSelector:
+    matchLabels:
+      app: grpc-server 
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: supergraph-router 
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+      rules:
+        kafka: []
+        http:
+        - method: "POST"
+          path: "/enterprise.security.FraudDetectionService/AnalyzeTransaction"
