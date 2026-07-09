@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grpc-proto-schema
+  namespace: default
+data:
+  fraud_check.proto: |
+    syntax = "proto3";
+    
+    package enterprise.security;
+
+    // The gRPC Service Definition
+    service FraudDetectionService {
+      rpc AnalyzeTransaction (TransactionRequest) returns (FraudAnalysisResponse) {}
+    }
+
+    // The strictly typed request payload
+    message TransactionRequest {
+      string transaction_id = 1;
+      float amount = 2;
+      string account_id = 3;
+    }
+
+    // The strictly typed response payload
+    message FraudAnalysisResponse {
+      bool is_fraudulent = 1;
+      float risk_score = 2;
+      string action_required = 3;
+    }
