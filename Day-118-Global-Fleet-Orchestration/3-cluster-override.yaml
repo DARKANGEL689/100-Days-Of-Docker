@@ -1,0 +1,22 @@
+apiVersion: policy.karmada.io/v1alpha1
+kind: OverridePolicy
+metadata:
+  name: eu-gdpr-compliance-override
+  namespace: default
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: enterprise-global-api
+  targetCluster:
+    clusterNames:
+      - eu-west-cluster
+  overriders:
+    plaintext:
+      - path: "/spec/template/spec/containers/0/env"
+        operator: add
+        value:
+          - name: STRICT_GDPR_ENFORCEMENT
+            value: "TRUE"
+          - name: LOCALIZED_DATA_LAKE
+            value: "gcp-frankfurt-lake-01"
