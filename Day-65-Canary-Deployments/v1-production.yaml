@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: web
+        version: v1
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:1.0.0
+        args: ["-text=STABLE: You have reached Version 1.0"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-v1
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: web
+    version: v1
