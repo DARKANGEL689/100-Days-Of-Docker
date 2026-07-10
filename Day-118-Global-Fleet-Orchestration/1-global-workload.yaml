@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-global-api
+  namespace: default
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: global-api
+  template:
+    metadata:
+      labels:
+        app: global-api
+    spec:
+      containers:
+      - name: api
+        image: nginx:alpine
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
