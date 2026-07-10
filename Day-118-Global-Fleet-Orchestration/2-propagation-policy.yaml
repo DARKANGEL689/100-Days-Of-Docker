@@ -1,0 +1,20 @@
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: distribute-global-api
+  namespace: default
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: enterprise-global-api
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - us-east-cluster
+        - eu-west-cluster
+    replicaScheduling:
+      replicaDivisionPreference: Aggregated
+      replicaSchedulingType: Divided
+      weightPreference:
+        dynamicWeight: AvailableReplicas
