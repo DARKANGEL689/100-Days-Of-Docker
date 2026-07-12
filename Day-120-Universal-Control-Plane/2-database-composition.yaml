@@ -1,0 +1,51 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xenterprisedatabases.database.enterprise.local
+spec:
+  group: database.enterprise.local
+  names:
+    kind: XEnterpriseDatabase
+    plural: xenterprisedatabases
+  claimNames:
+    kind: EnterpriseDatabase
+    plural: enterprisedatabases
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              storageGB:
+                type: integer
+              engineVersion:
+                type: string
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: aws-secure-rds-postgres
+  labels:
+    provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: database.enterprise.local/v1alpha1
+    kind: XEnterpriseDatabase
+  resources:
+  - name: rds-instance
+    base:
+      apiVersion: rds.aws.upbound.io/v1beta1
+      kind: Instance
+      spec:
+        forProvider:
+          region: us-east-1
+          engine: postgres
+          instanceClass: db.t3.medium
+          allocatedStorage: 20
+          storageEncrypted: true
+          multiAz: true
