@@ -1,0 +1,8 @@
+apiVersion: database.enterprise.local/v1alpha1
+kind: EnterpriseDatabase
+metadata:
+  name: production-user-ledger
+  namespace: default
+spec:
+  storageGB: 50
+  engineVersion: "15.3"
