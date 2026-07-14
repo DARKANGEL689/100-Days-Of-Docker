@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rogue-hacker-payload
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rogue
+  template:
+    metadata:
+      labels:
+        app: rogue
+    spec:
+      containers:
+      - name: malware
+        image: nginx:latest
