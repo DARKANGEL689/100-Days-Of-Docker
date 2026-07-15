@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cpu-burner-logic
+  namespace: default
+data:
+  anomaly.py: |
+    import time
+
+    def compute_heavy_algorithm(n):
+        # Inefficient recursive Fibonacci to simulate a massive CPU bottleneck
+        if n <= 1:
+            return n
+        return compute_heavy_algorithm(n-1) + compute_heavy_algorithm(n-2)
+
+    def process_queue():
+        while True:
+            # Continuously spiking the CPU
+            compute_heavy_algorithm(35)
+            time.sleep(0.1)
+
+    if __name__ == "__main__":
+        print("[ANOMALY] Initiating high-CPU processing loop...")
+        process_queue()
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-billing-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpu-burner
+  template:
+    metadata:
+      labels:
+        app: cpu-burner
+    spec:
+      containers:
+      - name: python-api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["cp /scripts/anomaly.py /app/anomaly.py && python /app/anomaly.py"]
+        volumeMounts:
+        - name: scripts-volume
+          mountPath: /scripts
+      volumes:
+      - name: scripts-volume
+        configMap:
+          name: cpu-burner-logic
