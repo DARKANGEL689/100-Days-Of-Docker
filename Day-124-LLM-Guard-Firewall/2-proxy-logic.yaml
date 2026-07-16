@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-guard-proxy-script
+  namespace: default
+data:
+  proxy.py: |
+    import json
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    import requests
+    from llm_guard import scan_prompt, scan_output
+    from llm_guard.input_scanners import Jailbreak, PromptInjection
+    from llm_guard.output_scanners import PII
+
+    # Initialize lightweight defensive models
+    print("[FIREWALL] Loading defensive scanner tokens and weights...")
+    input_scanners = [Jailbreak(), PromptInjection()]
+    output_scanners = [PII(redact=True)]
+
+    class SecurityProxyHandler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            payload = json.loads(body.decode('utf-8'))
+            
+            user_prompt = payload.get("prompt", "")
+            print(f"[FIREWALL-INPUT] Inspecting incoming payload: '{user_prompt[:50]}...'")
+            
+            # 1. Scan Input Prompt for Attacks
+            sanitized_prompt, is_valid, risk_score = scan_prompt(input_scanners, user_prompt)
+            if not is_valid:
+                print(f"[ALERT] Prompt Injection Detected! Risk: {risk_score}. Dropping request.")
+                self.send_response(403)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Security Policy Violation: Malicious Intent Detected."}).encode('utf-8'))
+                return
+
+            # 2. Forward Safe Traffic to Real vLLM Core
+            print("[FIREWALL] Prompt cleared. Forwarding to upstream vLLM Cluster...")
+            # In production, this proxies directly to vllm-api-svc:8000
+            # For this test, we simulate an authorized model completion response containing leaked data:
+            simulated_vllm_response = "Here is your requested info: My account email is admin@enterprise.com and card number is 4111-2222-3333-4444."
+            
+            # 3. Scan Output Response for Data Leakage/PII
+            print("[FIREWALL-OUTPUT] Inspecting raw model output for compliance leaks...")
+            sanitized_output, is_output_safe, _ = scan_output(output_scanners, user_prompt, simulated_vllm_response)
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"response": sanitized_output}).encode('utf-8'))
+
+    server = HTTPServer(('0.0.0.0', 8080), SecurityProxyHandler)
+    print("[FIREWALL] AI Gateway Firewall is active on port 8080...")
+    server.serve_forever()
