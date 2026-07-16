@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-guard-policy
+  namespace: default
+data:
+  config.json: |
+    {
+      "input_scanners": {
+        "Jailbreak": {"threshold": 0.85},
+        "PromptInjection": {"threshold": 0.80}
+      },
+      "output_scanners": {
+        "PII": {
+          "entity_types": ["CREDIT_CARD", "EMAIL_ADDRESS", "US_SSN"],
+          "redact": true
+        }
+      }
+    }
