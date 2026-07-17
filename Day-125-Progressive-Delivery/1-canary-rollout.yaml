@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: enterprise-payment-api
+  namespace: default
+spec:
+  replicas: 5
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: payment-api
+  template:
+    metadata:
+      labels:
+        app: payment-api
+    spec:
+      containers:
+      - name: payment-api
+        image: nginx:1.24-alpine 
+        ports:
+        - containerPort: 80
+  strategy:
+    canary:
+      canaryService: payment-api-canary
+      stableService: payment-api-stable
+      trafficRouting:
+        nginx:
+          stableIngress: payment-api-ingress
+      steps:
+      - setWeight: 20
+      - pause: {duration: 10s}
+      - analysis:
+          templates:
+          - templateName: success-rate-monitor
+      - setWeight: 50
+      - pause: {duration: 10s}
