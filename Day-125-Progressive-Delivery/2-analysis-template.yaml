@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate-monitor
+  namespace: default
+spec:
+  metrics:
+  - name: success-rate
+    interval: 5s
+    successCondition: result[0] >= 0.99
+    failureLimit: 1
+    provider:
+      prometheus:
+        address: http://prometheus-server.monitoring.svc.cluster.local:9090
+        query: >+
+          1.0
