@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: default
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+    processors:
+      batch:
+        timeout: 1s
+    exporters:
+      otlp:
+        endpoint: "jaeger-svc.default.svc.cluster.local:4317"
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+      - name: collector
+        image: otel/opentelemetry-collector:0.87.0
+        command: ["/otelcol", "--config=/etc/otelcol/config.yaml"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/otelcol
+      volumes:
+      - name: config-volume
+        configMap:
+          name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector-svc
+  namespace: default
+spec:
+  ports:
+  - port: 4317
+    name: otlp-grpc
+  - port: 4318
+    name: otlp-http
+  selector:
+    app: otel-collector
