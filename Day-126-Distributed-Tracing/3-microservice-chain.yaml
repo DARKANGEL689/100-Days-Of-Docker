@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tracing-apps-logic
+  namespace: default
+data:
+  order_api.py: |
+    from flask import Flask
+    import requests
+    import time
+
+    app = Flask(__name__)
+
+    @app.route("/checkout")
+    def checkout():
+        print("[ORDER-API] Processing checkout...")
+        time.sleep(0.1) # Simulate DB lookup
+        # Call the downstream microservice
+        response = requests.get("http://inventory-api-svc:8080/reserve")
+        return f"Order Processed. Inventory status: {response.text}"
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080)
+
+  inventory_api.py: |
+    from flask import Flask
+    import time
+
+    app = Flask(__name__)
+
+    @app.route("/reserve")
+    def reserve():
+        print("[INVENTORY-API] Reserving items...")
+        time.sleep(0.4) # Simulate a slow legacy system
+        return "Reserved Successfully"
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-api
+  template:
+    metadata:
+      labels:
+        app: order-api
+    spec:
+      containers:
+      - name: app
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: 
+          - "pip install --quiet flask requests opentelemetry-distro opentelemetry-exporter-otlp && opentelemetry-bootstrap -a install && opentelemetry-instrument python /scripts/order_api.py"
+        env:
+        - name: OTEL_SERVICE_NAME
+          value: "Order-Microservice"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector-svc:4317"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+      volumes:
+      - name: scripts
+        configMap:
+          name: tracing-apps-logic
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-api-svc
+  namespace: default
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: order-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-api
+  template:
+    metadata:
+      labels:
+        app: inventory-api
+    spec:
+      containers:
+      - name: app
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: 
+          - "pip install --quiet flask opentelemetry-distro opentelemetry-exporter-otlp && opentelemetry-bootstrap -a install && opentelemetry-instrument python /scripts/inventory_api.py"
+        env:
+        - name: OTEL_SERVICE_NAME
+          value: "Inventory-Microservice"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector-svc:4317"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+      volumes:
+      - name: scripts
+        configMap:
+          name: tracing-apps-logic
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-api-svc
+  namespace: default
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: inventory-api
