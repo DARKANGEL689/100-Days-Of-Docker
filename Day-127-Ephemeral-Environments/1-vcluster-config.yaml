@@ -1,0 +1,9 @@
+# vCluster values configuration
+sync:
+  nodes:
+    enabled: true
+    syncAllNodes: true
+  persistentVolumeClaims:
+    enabled: true
+  ingresses:
+    enabled: false
