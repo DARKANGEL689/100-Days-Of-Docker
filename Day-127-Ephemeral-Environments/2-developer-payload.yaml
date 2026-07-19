@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: experimental-feature-api
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: experimental-api
+  template:
+    metadata:
+      labels:
+        app: experimental-api
+    spec:
+      containers:
+      - name: api
+        image: nginx:alpine
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "32Mi"
