@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-llm-inferencing
+  namespace: default
+spec:
+  replicas: 4 
+  selector:
+    matchLabels:
+      app: ai-model
+  template:
+    metadata:
+      labels:
+        app: ai-model
+    spec:
+      containers:
+      - name: vector-processor
+        image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+        command: ["/bin/sh", "-c"]
+        args: ["while true; do python -c 'import torch; x = torch.rand(5000, 5000).cuda(); y = torch.rand(5000, 5000).cuda(); z = torch.matmul(x, y)'; sleep 1; done"]
+        resources:
+          limits:
+            nvidia.com/mig-1g.5gb: 1
