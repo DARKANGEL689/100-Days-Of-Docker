@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-mig-parted-config
+  namespace: gpu-operator
+data:
+  config.yaml: |
+    version: v1
+    mig-configs:
+      all-1g.5gb:
+        - devices: all
+          mig-enabled: true
+          mig-devices:
+            # We explicitly slice the GPU into seven 1g.5gb partitions
+            "1g.5gb": 7
