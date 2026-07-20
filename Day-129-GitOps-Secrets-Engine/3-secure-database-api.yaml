@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-database-api
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secure-db-api
+  template:
+    metadata:
+      labels:
+        app: secure-db-api
+    spec:
+      containers:
+      - name: api
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: ["echo 'API Online. Database password loaded into memory.'; sleep infinity"]
+        envFrom:
+        - secretRef:
+            name: enterprise-db-credentials
