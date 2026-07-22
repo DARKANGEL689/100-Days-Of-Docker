@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-vault-api
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vault-api
+  template:
+    metadata:
+      labels:
+        app: vault-api
+    spec:
+      runtimeClassName: kata-qemu
+      containers:
+      - name: secure-api
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: ["echo 'Vault API is running inside a MicroVM.'; sleep infinity"]
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
