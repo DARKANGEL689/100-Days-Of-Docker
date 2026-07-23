@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-java-monolith
+  namespace: default
+  labels:
+    cost-center: "engineering-alpha"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: legacy-monolith
+  template:
+    metadata:
+      labels:
+        app: legacy-monolith
+    spec:
+      containers:
+      - name: jvm-process
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: ["echo 'Monolith booted. Consuming maximum cluster resources...'; sleep infinity"]
+        resources:
+          requests:
+            cpu: "4"
+            memory: "16Gi"
