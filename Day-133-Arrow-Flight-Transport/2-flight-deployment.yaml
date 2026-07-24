@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arrow-flight-server
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flight-server
+  template:
+    metadata:
+      labels:
+        app: flight-server
+    spec:
+      containers:
+      - name: server
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: ["pip install --quiet pyarrow && python /scripts/server.py"]
+        ports:
+        - containerPort: 50051
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+      volumes:
+      - name: scripts
+        configMap:
+          name: arrow-flight-logic
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: arrow-flight-svc
+  namespace: default
+spec:
+  ports:
+  - port: 50051
+    targetPort: 50051
+  selector:
+    app: flight-server
