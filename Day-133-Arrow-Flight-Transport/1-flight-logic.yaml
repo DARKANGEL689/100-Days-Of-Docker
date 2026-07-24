@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arrow-flight-logic
+  namespace: default
+data:
+  server.py: |
+    import pyarrow as pa
+    import pyarrow.flight as flight
+    import time
+
+    class EnterpriseFlightServer(flight.FlightServerBase):
+        def __init__(self, host="0.0.0.0", port=50051, **kwargs):
+            location = f"grpc+tcp://{host}:{port}"
+            super().__init__(location, **kwargs)
+            # Seed an in-memory Arrow Table (1 Million Rows of Mock Matrix Telemetry)
+            print("[ARROW-SERVER] Synthesizing 1,000,000 records columnarly in RAM...")
+            self.data = pa.table({
+                'ticker_id': pa.array([f"TICK-{i%100}" for i in range(1000000)]),
+                'price': pa.array([100.0 + (i * 0.01) for i in range(1000000)]),
+                'volume': pa.array([i * 2 for i in range(1000000)])
+            })
+
+        def do_get(self, context, ticket):
+            # Zero-copy transmission: streaming the exact memory layout straight to the socket
+            print("[ARROW-SERVER] Inbound request received. Executing zero-copy memory stream...")
+            return flight.RecordBatchStream(self.data)
+
+    if __name__ == "__main__":
+        server = EnterpriseFlightServer()
+        print("[ARROW-SERVER] Listening for high-velocity Flight requests on port 50051...")
+        server.serve()
+
+  client.py: |
+    import pyarrow.flight as flight
+    import time
+
+    print("[ARROW-CLIENT] Connecting to high-velocity memory domain...")
+    client = flight.FlightClient("grpc+tcp://arrow-flight-svc.default.svc.cluster.local:50051")
+    
+    # Define the flight ticket to fetch our in-memory block
+    ticket = flight.Ticket(b"fetch_telemetry")
+    
+    print("[ARROW-CLIENT] Initiating zero-copy stream extraction across network...")
+    start_time = time.time()
+    
+    # Requesting the raw stream data
+    reader = client.do_get(ticket)
+    # Reconstructing the complete table straight out of the wire bytes without string parsing
+    table = reader.read_all()
+    
+    latency = round((time.time() - start_time) * 1000, 2)
+    print(f"\n[TRANSPORT SUCCESS] Extracted {len(table)} rows into local memory in {latency} ms.")
+    print(f"Columns processed: {table.column_names}")
+    print(pa.DataFrameFormatter(table).to_string()[:250] + "...\n")
