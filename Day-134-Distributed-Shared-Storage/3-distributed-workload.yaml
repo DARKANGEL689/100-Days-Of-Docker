@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-ingester-alpha
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingester-alpha
+  template:
+    metadata:
+      labels:
+        app: ingester-alpha
+    spec:
+      containers:
+      - name: writer
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: ["while true; do echo '[ALPHA] ML Telemetry logged at '$(date) >> /data/shared_ledger.log; sleep 2; done"]
+        volumeMounts:
+        - name: shared-storage
+          mountPath: /data
+      volumes:
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: enterprise-rwx-claim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-ingester-beta
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingester-beta
+  template:
+    metadata:
+      labels:
+        app: ingester-beta
+    spec:
+      containers:
+      - name: writer
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: ["while true; do echo '[BETA] Sensor telemetry logged at '$(date) >> /data/shared_ledger.log; sleep 2; done"]
+        volumeMounts:
+        - name: shared-storage
+          mountPath: /data
+      volumes:
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: enterprise-rwx-claim
