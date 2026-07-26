@@ -1,0 +1,21 @@
+apiVersion: split.smi-spec.io/v1alpha2
+kind: TrafficSplit
+metadata:
+  name: billing-api-split
+  namespace: default
+spec:
+  service: billing-api-unified
+  backends:
+  - service: billing-api-v1-svc
+    weight: 900
+  - service: billing-api-v2-svc
+    weight: 100
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-api-unified
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
