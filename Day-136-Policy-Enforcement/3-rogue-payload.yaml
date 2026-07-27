@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-admin-tool
+  namespace: default
+spec:
+  containers:
+  - name: nginx-server
+    image: nginx:alpine
+    securityContext:
+      privileged: true
