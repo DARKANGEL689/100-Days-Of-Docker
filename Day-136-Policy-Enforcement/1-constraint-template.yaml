@@ -1,0 +1,25 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sblockprivileged
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sBlockPrivileged
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sblockprivileged
+
+        # The mathematical definition of the violation
+        violation[{"msg": msg}] {
+          # Iterate through every container in the manifest
+          c := input.review.object.spec.containers[_]
+          
+          # If this evaluates to true, the law is broken
+          c.securityContext.privileged
+          
+          # Formulate the explicit error message returned to the developer
+          msg := sprintf("[PROTOCOL 300 VIOLATION] Privileged container execution is strictly forbidden: %v", [c.name])
+        }
