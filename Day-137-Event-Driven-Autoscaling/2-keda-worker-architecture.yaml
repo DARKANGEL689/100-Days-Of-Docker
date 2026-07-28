@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-worker
+  namespace: default
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: queue-worker
+  template:
+    metadata:
+      labels:
+        app: queue-worker
+    spec:
+      containers:
+      - name: worker
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: ["echo 'Worker Pod Booted. Pulling messages from Redis...'; sleep 10"]
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: redis-queue-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: queue-worker
+  minReplicaCount: 0
+  maxReplicaCount: 30
+  triggers:
+  - type: redis
+    metadata:
+      address: redis-broker-svc.default.svc.cluster.local:6379
+      listName: enterprise_task_queue
+      listLength: "5"
