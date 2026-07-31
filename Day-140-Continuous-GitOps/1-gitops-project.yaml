@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: enterprise-alpha-project
+  namespace: argocd
+spec:
+  description: "Restricted boundary for Alpha Team deployments"
+  destinations:
+  - namespace: default
+    server: https://kubernetes.default.svc
+  sourceRepos:
+  - '*'
+  clusterResourceWhitelist: []
