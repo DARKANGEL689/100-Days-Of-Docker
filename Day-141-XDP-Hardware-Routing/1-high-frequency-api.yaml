@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-trading-api
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: trading-api
+  template:
+    metadata:
+      labels:
+        app: trading-api
+    spec:
+      containers:
+      - name: api
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
