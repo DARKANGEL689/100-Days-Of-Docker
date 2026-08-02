@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-api-aws
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: global-auth
+  template:
+    metadata:
+      labels:
+        app: global-auth
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:latest
+        args: ["-text=Authentication Successful [Processed by AWS us-east-1]"]
+        ports:
+        - containerPort: 8080
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-api-gcp
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: global-auth
+  template:
+    metadata:
+      labels:
+        app: global-auth
+    spec:
+      containers:
+      - name: api
+        image: hashicorp/http-echo:latest
+        args: ["-text=Authentication Successful [Processed by GCP europe-west1]"]
+        ports:
+        - containerPort: 8080
