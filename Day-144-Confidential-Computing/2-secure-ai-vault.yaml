@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proprietary-ai-vault
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-vault
+  template:
+    metadata:
+      labels:
+        app: ai-vault
+    spec:
+      runtimeClassName: confidential-enclave
+      containers:
+      - name: vault-processor
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: 
+          - |
+            echo '[ENCLAVE BOOT] Initializing highly sensitive data processing...'
+            echo '[ENCLAVE] Loading proprietary model weights into memory...'
+            # This loop simulates processing sensitive data in RAM
+            while true; do sleep 10; done
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
