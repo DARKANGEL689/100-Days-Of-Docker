@@ -1,0 +1,53 @@
+apiVersion: ray.io/v1
+kind: RayJob
+metadata:
+  name: llm-distributed-training
+  namespace: default
+spec:
+  submissionMode: "K8sJobMode"
+  rayClusterName: enterprise-ai-grid
+  entrypoint: python /scripts/train.py
+  runtimeEnvYAML: |
+    env_vars:
+      MODEL_TIER: "ENTERPRISE"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: ray-job-submitter
+            image: rayproject/ray:2.9.0
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              cat << 'EOF' > /scripts/train.py
+              import ray
+              import time
+              import socket
+
+              ray.init()
+
+              @ray.remote
+              def massive_tensor_computation(batch_id):
+                  node_ip = socket.gethostbyname(socket.gethostname())
+                  print(f"[WORKER {node_ip}] Processing massive tensor batch {batch_id}...")
+                  time.sleep(2) # Simulating heavy GPU calculation
+                  return f"Batch {batch_id} complete on {node_ip}"
+
+              print("[HEAD] Distributing 100 deep-learning batches across the cluster matrix...")
+              start_time = time.time()
+              
+              futures = [massive_tensor_computation.remote(i) for i in range(10)]
+              results = ray.get(futures)
+              
+              duration = round(time.time() - start_time, 2)
+              print(f"[HEAD] Model training complete in {duration} seconds. Aggregated results.")
+              EOF
+              python /scripts/train.py
+            volumeMounts:
+            - name: script-vol
+              mountPath: /scripts
+          restartPolicy: Never
+          volumes:
+          - name: script-vol
+            emptyDir: {}
