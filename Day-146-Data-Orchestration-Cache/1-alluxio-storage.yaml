@@ -1,0 +1,22 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alluxio-nvme-cache
+provisioner: alluxio.csi.alluxio.com
+parameters:
+  alluxio.master.hostname: "alluxio-master.storage-cache.svc.cluster.local"
+  alluxio.master.port: "19998"
+  alluxio.ufs: "s3://juicefs-minio-svc.default.svc.cluster.local:9000/ai-checkpoints"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamic-cache-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: alluxio-nvme-cache
+  resources:
+    requests:
+      storage: 100Gi
