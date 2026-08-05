@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-throughput-trainer
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-trainer
+  template:
+    metadata:
+      labels:
+        app: ai-trainer
+    spec:
+      containers:
+      - name: training-engine
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args: 
+          - |
+            echo '[TRAIN] Initializing epoch operations...';
+            mkdir -p /data/checkpoints;
+            while true; do
+              echo '[CHECKPOINT] Serializing active model weights array directly to NVMe cache...';
+              dd if=/dev/zero of=/data/checkpoints/epoch_snapshot.ckpt bs=1M count=1024 status=none;
+              echo '[SUCCESS] Checkpoint write acknowledged in microseconds. Continuing training loop.';
+              sleep 15;
+            done
+        volumeMounts:
+        - name: cache-vol
+          mountPath: /data
+      volumes:
+      - name: cache-vol
+        persistentVolumeClaim:
+          claimName: dynamic-cache-pvc
