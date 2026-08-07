@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributed-tensor-workers
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: tensor-engine
+  template:
+    metadata:
+      labels:
+        app: tensor-engine
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - tensor-engine
+            topologyKey: topology.kubernetes.io/rack
+      containers:
+      - name: compute-node
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "[WORKER] Booting localized tensor engine..."
+            while true; do
+              echo "[SYNC] Establishing zero-hop gradient sync with neighbor pods on local rack..."
+              sleep 10
+            done
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
