@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tensor-training-run
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: model-trainer
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install mlflow
+            cat << 'EOF' > train.py
+            import mlflow
+            import time
+
+            # Bind to the centralized tracking server
+            mlflow.set_tracking_uri("http://mlflow-service:5000")
+            mlflow.set_experiment("Day-148-Transformer-Core")
+
+            print("[TRAIN] Initiating deep learning sequence...")
+            with mlflow.start_run() as run:
+                print(f"[MLFLOW] Run ID established: {run.info.run_id}")
+                
+                # Log Governance Metadata
+                mlflow.log_param("optimizer", "AdamW")
+                mlflow.log_param("learning_rate", 0.001)
+                mlflow.log_param("attention_heads", 12)
+                
+                # Simulate training epochs
+                for epoch in range(1, 4):
+                    time.sleep(2)
+                    accuracy = 0.85 + (epoch * 0.04)
+                    mlflow.log_metric("val_accuracy", accuracy, step=epoch)
+                    print(f"Epoch {epoch} | Accuracy: {accuracy}")
+                
+                # Serialize and register the physical model artifact
+                with open("transformer_weights.bin", "w") as f:
+                    f.write("BINARY_TENSOR_DATA_SIMULATION")
+                mlflow.log_artifact("transformer_weights.bin")
+                
+            print("[TRAIN] Sequence complete. Lineage securely registered.")
+            EOF
+            python train.py
