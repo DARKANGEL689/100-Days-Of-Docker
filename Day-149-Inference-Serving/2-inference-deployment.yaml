@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transformer-inference-server
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inference-engine
+  template:
+    metadata:
+      labels:
+        app: inference-engine
+    spec:
+      volumes:
+      - name: code-volume
+        configMap:
+          name: inference-api-code
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn
+            cp /app-code/server.py /server.py
+            echo "[BOOT] Starting Uvicorn ASGI Server..."
+            uvicorn server:app --host 0.0.0.0 --port 8080 --workers 2
+        volumeMounts:
+        - name: code-volume
+          mountPath: /app-code
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-service
+  namespace: default
+spec:
+  selector:
+    app: inference-engine
+  ports:
+    - port: 80
+      targetPort: 8080
