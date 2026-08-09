@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-api-code
+  namespace: default
+data:
+  server.py: |
+    from fastapi import FastAPI
+    import time
+    import os
+
+    app = FastAPI(title="Transformer Inference Engine")
+
+    # Simulate loading the MLflow artifact into GPU/CPU memory on boot
+    print("[INIT] Loading model weights into VRAM...")
+    time.sleep(2) 
+    MODEL_READY = True
+
+    @app.get("/health")
+    def health_check():
+        return {"status": "ONLINE", "model_loaded": MODEL_READY}
+
+    @app.post("/v2/models/transformer/infer")
+    def infer(payload: dict):
+        # Simulate tensor operations and inference latency
+        start_time = time.time()
+        time.sleep(0.05) 
+        latency = (time.time() - start_time) * 1000
+        
+        return {
+            "model_name": "transformer-core-v1",
+            "outputs": [
+                {"name": "logits", "datatype": "FP16", "data": [0.84, -0.12, 3.44]}
+            ],
+            "compute_latency_ms": round(latency, 2)
+        }
