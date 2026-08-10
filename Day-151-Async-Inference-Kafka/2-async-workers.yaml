@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-python-code
+data:
+  producer.py: |
+    from kafka import KafkaProducer
+    import json
+    import time
+    import random
+
+    producer = KafkaProducer(
+        bootstrap_servers=['kafka-svc:9092'],
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
+
+    print("[API GATEWAY] Online. Ingesting massive traffic spikes...")
+    job_id = 1000
+    while True:
+        # Simulating rapid, unpredictable bursts of user requests
+        payload = {"job_id": job_id, "tensor_input": [random.random(), random.random()]}
+        producer.send('inference-queue', payload)
+        print(f"[INGEST] Job {job_id} buffered to Kafka. Connection closed instantly.")
+        job_id += 1
+        time.sleep(0.5)
+
+  consumer.py: |
+    from kafka import KafkaConsumer
+    import json
+    import time
+
+    consumer = KafkaConsumer(
+        'inference-queue',
+        bootstrap_servers=['kafka-svc:9092'],
+        value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+        group_id='ai-workers',
+        auto_offset_reset='earliest'
+    )
+
+    print("[INFERENCE WORKER] Online. Pulling from Event Stream...")
+    for message in consumer:
+        job = message.value
+        print(f"[COMPUTE] Executing heavy tensor logic for Job {job['job_id']}...")
+        time.sleep(2) # Simulating heavy GPU processing time
+        print(f"[SUCCESS] Job {job['job_id']} complete. Acknowledging offset.")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: async-ai
+  template:
+    metadata:
+      labels:
+        app: async-ai
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: kafka-python-code
+      containers:
+      - name: api-producer
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install kafka-python && python /code/producer.py"]
+        volumeMounts:
+        - name: code
+          mountPath: /code
+      - name: ai-consumer
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install kafka-python && python /code/consumer.py"]
+        volumeMounts:
+        - name: code
+          mountPath: /code
