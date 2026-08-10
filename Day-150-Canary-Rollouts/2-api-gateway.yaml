@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    http {
+        # Define the routing weights: 80% to V1, 20% to V2
+        upstream ai_models {
+            server model-v1-svc:8080 weight=8;
+            server model-v2-svc:8080 weight=2;
+        }
+
+        server {
+            listen 80;
+            
+            location / {
+                proxy_pass http://ai_models;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: gateway-config
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-gateway-svc
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 80
+      targetPort: 80
