@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-logic
+  namespace: default
+data:
+  server.py: |
+    from fastapi import FastAPI
+    import os
+    app = FastAPI()
+    
+    # Read the injected version from the deployment environment
+    MODEL_VERSION = os.getenv("MODEL_VERSION", "UNKNOWN")
+
+    @app.post("/infer")
+    def infer():
+        return {
+            "status": "SUCCESS",
+            "executed_by": MODEL_VERSION,
+            "inference_data": [0.99, 0.01] if MODEL_VERSION == "V2-Canary" else [0.85, 0.15]
+        }
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transformer-v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transformer-v1
+  template:
+    metadata:
+      labels:
+        app: transformer-v1
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: model-logic
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install fastapi uvicorn && cp /code/server.py /server.py && uvicorn server:app --host 0.0.0.0 --port 8080"]
+        env:
+        - name: MODEL_VERSION
+          value: "V1-Stable"
+        volumeMounts:
+        - name: code
+          mountPath: /code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-v1-svc
+spec:
+  selector:
+    app: transformer-v1
+  ports:
+    - port: 8080
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transformer-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transformer-v2
+  template:
+    metadata:
+      labels:
+        app: transformer-v2
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: model-logic
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install fastapi uvicorn && cp /code/server.py /server.py && uvicorn server:app --host 0.0.0.0 --port 8080"]
+        env:
+        - name: MODEL_VERSION
+          value: "V2-Canary"
+        volumeMounts:
+        - name: code
+          mountPath: /code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-v2-svc
+spec:
+  selector:
+    app: transformer-v2
+  ports:
+    - port: 8080
