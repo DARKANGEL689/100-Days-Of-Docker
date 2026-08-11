@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-inference-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: ai-consumer
+  minReplicaCount: 1
+  maxReplicaCount: 15
+  triggers:
+  - type: kafka
+    metadata:
+      bootstrapServers: kafka-svc:9092
+      consumerGroup: ai-workers
+      topic: inference-queue
+      lagThreshold: "10"
+      offsetResetPolicy: earliest
