@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-python-code
+data:
+  producer.py: |
+    from kafka import KafkaProducer
+    import json, time, random
+    producer = KafkaProducer(bootstrap_servers=['kafka-svc:9092'], value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+    print("[API] Online. Firing massive inference payload burst...")
+    for i in range(1, 101): # Firing 100 requests instantly to spike the lag
+        producer.send('inference-queue', {"job_id": i, "tensor_input": [random.random()]})
+        print(f"[INGEST] Buffered Job {i}")
+    print("[API] Burst complete. Waiting 60 seconds before next wave...")
+    time.sleep(60)
+
+  consumer.py: |
+    from kafka import KafkaConsumer
+    import json, time
+    consumer = KafkaConsumer('inference-queue', bootstrap_servers=['kafka-svc:9092'], value_deserializer=lambda m: json.loads(m.decode('utf-8')), group_id='ai-workers', auto_offset_reset='earliest')
+    print("[WORKER] Boot sequence complete. Processing queue...")
+    for message in consumer:
+        job = message.value
+        print(f"[COMPUTE] Worker executing Job {job['job_id']}...")
+        time.sleep(2) # Heavy processing takes 2 seconds per job
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-producer
+  template:
+    metadata:
+      labels:
+        app: api-producer
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: kafka-python-code
+      containers:
+      - name: producer
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install kafka-python && python /code/producer.py"]
+        volumeMounts:
+        - name: code
+          mountPath: /code
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-consumer
+  template:
+    metadata:
+      labels:
+        app: ai-consumer
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: kafka-python-code
+      containers:
+      - name: consumer
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install kafka-python && python /code/consumer.py"]
+        volumeMounts:
+        - name: code
+          mountPath: /code
