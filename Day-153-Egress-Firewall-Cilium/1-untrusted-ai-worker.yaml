@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-ai-worker
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-ai-worker
+  template:
+    metadata:
+      labels:
+        app: secure-ai-worker
+    spec:
+      containers:
+      - name: worker
+        image: curlimages/curl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "[WORKER] Booting isolated compute instance..."
+            while true; do
+              sleep 3600
+            done
