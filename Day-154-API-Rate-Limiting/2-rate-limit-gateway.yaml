@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-gateway-config
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    http {
+        # Allocate 10MB of memory to track IP addresses ($binary_remote_addr)
+        # Enforce a strict rate of 2 requests per second
+        limit_req_zone $binary_remote_addr zone=ai_rate_limit:10m rate=2r/s;
+        
+        # Customize the HTTP response for rejected traffic
+        limit_req_status 429;
+
+        server {
+            listen 80;
+            
+            location / {
+                # Apply the rate limit zone. Burst=1 allows 1 extra request in the queue before hard rejecting
+                limit_req zone=ai_rate_limit burst=1 nodelay;
+                
+                proxy_pass http://internal-ai-svc:8080;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-firewall-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-firewall
+  template:
+    metadata:
+      labels:
+        app: edge-firewall
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: edge-gateway-config
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-firewall-svc
+spec:
+  selector:
+    app: edge-firewall
+  ports:
+    - port: 80
+      targetPort: 80
