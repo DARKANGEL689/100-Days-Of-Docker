@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: internal-ai-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: internal-ai-api
+  template:
+    metadata:
+      labels:
+        app: internal-ai-api
+    spec:
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn
+            cat << 'EOF' > server.py
+            from fastapi import FastAPI
+            app = FastAPI()
+            @app.get("/infer")
+            def infer():
+                return {"status": "SUCCESS", "compute": "Tensor processed"}
+            EOF
+            uvicorn server:app --host 0.0.0.0 --port 8080
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-ai-svc
+  namespace: default
+spec:
+  selector:
+    app: internal-ai-api
+  ports:
+    - port: 8080
+      targetPort: 8080
