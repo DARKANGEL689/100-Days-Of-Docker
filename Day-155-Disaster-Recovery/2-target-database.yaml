@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-postgres
+  namespace: default
+  labels:
+    dr-target: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dr-target: "true"
+  template:
+    metadata:
+      labels:
+        dr-target: "true"
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14-alpine
+        env:
+        - name: POSTGRES_USER
+          value: "admin"
+        - name: POSTGRES_PASSWORD
+          value: "admin123"
+        - name: POSTGRES_DB
+          value: "mlflow"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlops-postgres-svc
+  namespace: default
+  labels:
+    dr-target: "true"
+spec:
+  selector:
+    dr-target: "true"
+  ports:
+    - port: 5432
+      targetPort: 5432
