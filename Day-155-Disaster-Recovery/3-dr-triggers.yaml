@@ -1,0 +1,23 @@
+# Execute this to take the snapshot
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: mlops-snapshot-01
+  namespace: velero
+spec:
+  includedNamespaces:
+  - default
+  labelSelector:
+    matchLabels:
+      dr-target: "true"
+  storageLocation: default
+  snapshotVolumes: true
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: mlops-restore-01
+  namespace: velero
+spec:
+  backupName: mlops-snapshot-01
+  restorePVs: true
