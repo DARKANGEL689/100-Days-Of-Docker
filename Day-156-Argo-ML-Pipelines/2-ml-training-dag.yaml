@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ai-training-pipeline-
+  namespace: default
+spec:
+  serviceAccountName: ml-pipeline-runner
+  entrypoint: main-dag
+  
+  templates:
+  - name: main-dag
+    dag:
+      tasks:
+      - name: data-extraction
+        template: extract-phase
+        
+      - name: tensor-training
+        dependencies: [data-extraction]
+        template: training-phase
+        
+      - name: model-registration
+        dependencies: [tensor-training]
+        template: registry-phase
+
+  - name: extract-phase
+    container:
+      image: python:3.9-slim
+      command: ["/bin/sh", "-c"]
+      args: 
+        - "echo '[PHASE 1] Extracting 50GB dataset from MinIO vault...'; sleep 3; echo '[SUCCESS] Data secured in ephemeral volume.'"
+
+  - name: training-phase
+    container:
+      image: python:3.9-slim
+      command: ["/bin/sh", "-c"]
+      args: 
+        - "echo '[PHASE 2] Compiling Transformer architecture...'; sleep 5; echo '[SUCCESS] Epochs complete. Validation Accuracy: 98.4%'"
+
+  - name: registry-phase
+    container:
+      image: python:3.9-slim
+      command: ["/bin/sh", "-c"]
+      args: 
+        - "echo '[PHASE 3] Connecting to MLflow backend...'; sleep 2; echo '[SUCCESS] Weights registered. Run ID generated.'"
