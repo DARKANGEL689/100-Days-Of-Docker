@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-coding-agent
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rogue-agent
+  template:
+    metadata:
+      labels:
+        app: rogue-agent
+    spec:
+      containers:
+      - name: agent
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "[SWE-BENCH AGENT] Booting..."
+            echo "[SYSTEM] Attempting to scan host environment..."
+            while true; do
+              sleep 3600
+            done
