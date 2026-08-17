@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-logic
+data:
+  server.py: |
+    from fastapi import FastAPI
+    import redis
+    import json
+    import time
+
+    app = FastAPI(title="ML Feature Store API")
+    r = redis.Redis(host='redis-feature-svc', port=6379, db=0, decode_responses=True)
+
+    print("[MATERIALIZATION] Syncing offline feature registry to Online Store...")
+    historical_features = {
+        "user:101": {"account_age_days": 342, "transaction_count": 89, "is_premium": 1},
+        "user:102": {"account_age_days": 12, "transaction_count": 3, "is_premium": 0}
+    }
+    for key, features in historical_features.items():
+        r.set(key, json.dumps(features))
+    print("[SUCCESS] Online Store materialized.")
+
+    @app.get("/get-online-features/{user_id}")
+    def get_features(user_id: str):
+        start_time = time.time()
+        
+        raw_data = r.get(f"user:{user_id}")
+        latency_ms = round((time.time() - start_time) * 1000, 3)
+
+        if raw_data:
+            return {"status": "SUCCESS", "features": json.loads(raw_data), "latency_ms": latency_ms}
+        return {"status": "NOT_FOUND", "features": None, "latency_ms": latency_ms}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feature-server
+  template:
+    metadata:
+      labels:
+        app: feature-server
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: feature-logic
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn redis
+            cp /code/server.py /server.py
+            uvicorn server:app --host 0.0.0.0 --port 8000
+        volumeMounts:
+        - name: code
+          mountPath: /code
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: feature-server-svc
+spec:
+  selector:
+    app: feature-server
+  ports:
+    - port: 8000
+      targetPort: 8000
