@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-api-code
+data:
+  server.py: |
+    from fastapi import FastAPI
+    import redis, json, time, uuid
+
+    app = FastAPI()
+    r = redis.Redis(host='telemetry-svc', port=6379, db=0, decode_responses=True)
+
+    @app.post("/infer")
+    def infer(transaction_amount: float):
+        request_id = str(uuid.uuid4())
+        r.set(f"inference:{request_id}", json.dumps({"transaction_amount": transaction_amount}))
+        
+        return {"status": "SUCCESS", "prediction": "Valid", "request_id": request_id}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inference-gateway
+  template:
+    metadata:
+      labels:
+        app: inference-gateway
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: inference-api-code
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn redis
+            cp /code/server.py /server.py
+            uvicorn server:app --host 0.0.0.0 --port 8000
+        volumeMounts:
+        - name: code
+          mountPath: /code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-gateway-svc
+spec:
+  selector:
+    app: inference-gateway
+  ports:
+    - port: 8000
+      targetPort: 8000
