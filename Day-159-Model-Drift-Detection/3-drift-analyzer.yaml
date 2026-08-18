@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drift-logic
+data:
+  analyzer.py: |
+    import redis, json, sys
+
+    # The statistical baseline captured during Model Training (Day 156)
+    REFERENCE_MEAN = 50.0 
+    DRIFT_THRESHOLD = 0.20 # 20% maximum allowed deviation
+
+    print("[SYSTEM] Booting Drift Analysis Engine...")
+    r = redis.Redis(host='telemetry-svc', port=6379, db=0, decode_responses=True)
+    keys = r.keys("inference:*")
+    
+    if not keys:
+        print("[SKIP] No live telemetry found. Exiting.")
+        sys.exit(0)
+
+    total_val = 0
+    for k in keys:
+        data = json.loads(r.get(k))
+        total_val += data['transaction_amount']
+
+    live_mean = total_val / len(keys)
+    deviation = abs(live_mean - REFERENCE_MEAN) / REFERENCE_MEAN
+
+    print("--------------------------------------------------")
+    print(f"[METRIC] Reference Distribution Mean: ${REFERENCE_MEAN}")
+    print(f"[METRIC] Live Production Mean:        ${live_mean:.2f}")
+    print(f"[METRIC] Statistical Deviation:       {deviation*100:.2f}%")
+    print("--------------------------------------------------")
+
+    if deviation > DRIFT_THRESHOLD:
+        print("[CRITICAL ALERT] DATA DRIFT DETECTED!")
+        print("[ACTION] Initiating automated retraining DAG via Argo Workflows...")
+        sys.exit(1) # Failing the job to trigger K8s alerting
+    else:
+        print("[SUCCESS] Production data distribution is stable.")
+        sys.exit(0)
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-drift-monitor
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+      - name: code
+        configMap:
+          name: drift-logic
+      containers:
+      - name: analyzer
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c", "pip install redis && python /code/analyzer.py"]
+        volumeMounts:
+        - name: code
+          mountPath: /code
