@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-ai-worker
+  namespace: default
+spec:
+  containers:
+  - name: worker
+    image: python:3.9-slim
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "[WORKER] Booting..."
+        echo "[METRICS] Checking Environment Variables:"
+        env | grep K8S_GOVERNANCE
+        sleep 3600
