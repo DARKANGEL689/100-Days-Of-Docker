@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: block-latest-image-tags
+spec:
+  validationFailureAction: Enforce
+  rules:
+  - name: require-specific-tag
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    validate:
+      message: "[SECURITY BREACH PREVENTED]: You cannot use the ':latest' image tag in this cluster. Specify a strict immutable version."
+      pattern:
+        spec:
+          containers:
+          - image: "!*:latest"
