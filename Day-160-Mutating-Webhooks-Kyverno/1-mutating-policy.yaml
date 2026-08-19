@@ -1,0 +1,24 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-mlops-governance
+spec:
+  failurePolicy: Ignore 
+  rules:
+  - name: inject-governance-env
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    mutate:
+      patchStrategicMerge:
+        metadata:
+          labels:
+            governance.policy: "enforced"
+        spec:
+          containers:
+          - (name): "?*"
+            env:
+            - name: K8S_GOVERNANCE_LOCK
+              value: "SECURE_EXECUTION_ENFORCED"
