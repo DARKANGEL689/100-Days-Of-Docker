@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: unauthorized-latest-pod
+  namespace: default
+spec:
+  containers:
+  - name: worker
+    image: python:latest
+    command: ["/bin/sh", "-c", "sleep 3600"]
