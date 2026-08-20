@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpp-algo-burner
+  namespace: default
+  labels:
+    app: cpu-stress-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpu-stress-test
+  template:
+    metadata:
+      labels:
+        app: cpu-stress-test
+    spec:
+      containers:
+      - name: cpp-worker
+        image: gcc:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cat << 'EOF' > burner.cpp
+            #include <iostream>
+            
+            void deepAlgorithmicExecution() {
+                while(true) {
+                    int count = 0;
+                    for(int i = 2; i < 50000; i++) {
+                        bool isPrime = true;
+                        for(int j = 2; j * j <= i; j++) {
+                            if(i % j == 0) { 
+                                isPrime = false; 
+                                break; 
+                            }
+                        }
+                        if(isPrime) count++;
+                    }
+                }
+            }
+
+            int main() {
+                std::cout << "[SYSTEM] Initiating intensive C++ algorithmic execution..." << std::endl;
+                deepAlgorithmicExecution();
+                return 0;
+            }
+            EOF
+            echo "Compiling C++ matrix..."
+            g++ -O0 -g burner.cpp -o burner
+            echo "Executing binary..."
+            ./burner
