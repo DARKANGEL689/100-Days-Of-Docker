@@ -1,0 +1,13 @@
+agent:
+  enabled: true
+  hostPID: true
+  securityContext:
+    privileged: true
+    readOnlyRootFilesystem: true
+  podSecurityContext:
+    hostPID: true
+server:
+  enabled: true
+  service:
+    type: ClusterIP
+    port: 7070
