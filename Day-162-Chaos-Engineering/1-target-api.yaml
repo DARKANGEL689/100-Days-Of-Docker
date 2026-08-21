@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resilient-api
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: resilient-api
+  template:
+    metadata:
+      labels:
+        app: resilient-api
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
