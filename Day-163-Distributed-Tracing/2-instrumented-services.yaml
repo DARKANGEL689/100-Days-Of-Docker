@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservice-logic
+data:
+  backend.py: |
+    from fastapi import FastAPI
+    import time
+    app = FastAPI()
+    @app.get("/process")
+    def process_data():
+        time.sleep(0.4) 
+        return {"status": "Database Processed"}
+
+  frontend.py: |
+    from fastapi import FastAPI
+    import requests
+    app = FastAPI()
+    @app.get("/checkout")
+    def checkout():
+        response = requests.get("http://backend-svc:8081/process")
+        return {"status": "Checkout Complete", "backend_response": response.json()}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: microservice-logic
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn opentelemetry-distro opentelemetry-exporter-otlp
+            opentelemetry-bootstrap -a install
+            cp /code/backend.py /backend.py
+            export OTEL_SERVICE_NAME="backend-database-api"
+            export OTEL_EXPORTER_OTLP_ENDPOINT="http://jaeger-collector:4317"
+            export OTEL_EXPORTER_OTLP_INSECURE="true"
+            opentelemetry-instrument uvicorn backend:app --host 0.0.0.0 --port 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      volumes:
+      - name: code
+        configMap:
+          name: microservice-logic
+      containers:
+      - name: api
+        image: python:3.9-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn requests opentelemetry-distro opentelemetry-exporter-otlp
+            opentelemetry-bootstrap -a install
+            cp /code/frontend.py /frontend.py
+            export OTEL_SERVICE_NAME="frontend-gateway-api"
+            export OTEL_EXPORTER_OTLP_ENDPOINT="http://jaeger-collector:4317"
+            export OTEL_EXPORTER_OTLP_INSECURE="true"
+            opentelemetry-instrument uvicorn frontend:app --host 0.0.0.0 --port 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 8080
+      targetPort: 8080
