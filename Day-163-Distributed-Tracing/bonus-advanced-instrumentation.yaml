@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservice-logic
+data:
+  backend.py: |
+    from fastapi import FastAPI
+    from opentelemetry import trace
+    import time
+
+    app = FastAPI()
+    tracer = trace.get_tracer("backend-internal-tracer")
+
+    @app.get("/process")
+    def process_data():
+        with tracer.start_as_current_span("ml-matrix-multiplication") as span:
+            span.set_attribute("matrix.size", "10000x10000")
+            span.set_attribute("compute.node", "gpu-01")
+            time.sleep(0.3) 
+            
+        with tracer.start_as_current_span("redis-cache-sync") as span:
+            span.set_attribute("cache.status", "hit")
+            time.sleep(0.1)
+            
+        return {"status": "Advanced Telemetry Processed"}
+
+  frontend.py: |
+    from fastapi import FastAPI
+    import requests
+    app = FastAPI()
+    @app.get("/checkout")
+    def checkout():
+        response = requests.get("http://backend-svc:8081/process")
+        return {"status": "Checkout Complete", "backend_response": response.json()}
