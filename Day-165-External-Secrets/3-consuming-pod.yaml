@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-mlops-backend
+  namespace: default
+spec:
+  containers:
+  - name: app
+    image: alpine
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "[SYSTEM] Booting secure execution environment..."
+        echo "[AUDIT] Dynamically Injected Username: $DB_USER"
+        echo "[AUDIT] Dynamically Injected Password: $DB_PASS"
+        echo "[SYSTEM] Connecting to Database... Success."
+        sleep 3600
+    env:
+    - name: DB_USER
+      valueFrom:
+        secretKeyRef:
+          name: native-db-secret
+          key: username
+    - name: DB_PASS
+      valueFrom:
+        secretKeyRef:
+          name: native-db-secret
+          key: password
