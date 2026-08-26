@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-inference-api
+  namespace: default
+  labels:
+    app: ml-inference-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-inference-api
+  template:
+    metadata:
+      labels:
+        app: ml-inference-api
+    spec:
+      containers:
+      - name: api
+        image: stefanprodan/podinfo:6.0.0 
+        ports:
+        - containerPort: 9898
