@@ -1,0 +1,27 @@
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: ml-inference-api
+  namespace: default
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-inference-api
+  service:
+    port: 9898
+    targetPort: 9898
+  analysis:
+    interval: 15s
+    threshold: 2
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      thresholdRange:
+        min: 99
+      interval: 1m
+    - name: request-duration
+      thresholdRange:
+        max: 500
+      interval: 1m
