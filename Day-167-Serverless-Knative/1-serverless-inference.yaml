@@ -1,0 +1,22 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ephemeral-ml-api
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "0"
+        autoscaling.knative.dev/max-scale: "5"
+        autoscaling.knative.dev/scale-to-zero-pod-retention-period: "30s"
+    spec:
+      containers:
+      - image: stefanprodan/podinfo:6.0.0
+        ports:
+        - containerPort: 9898
+        env:
+        - name: UI_COLOR
+          value: "#000000"
+        - name: UI_MESSAGE
+          value: "Serverless AI Compute Engine Online"
