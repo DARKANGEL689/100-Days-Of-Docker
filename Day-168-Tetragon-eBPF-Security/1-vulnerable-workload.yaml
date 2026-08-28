@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: standard-api-backend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vulnerable-pod
+  template:
+    metadata:
+      labels:
+        app: vulnerable-pod
+    spec:
+      containers:
+      - name: api
+        image: alpine:latest
+        command: ["/bin/sh", "-c", "echo '[API] Online and awaiting requests...'; sleep 3600"]
