@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gpu-slicing-config
+  namespace: kube-system
+data:
+  slicing-strategy.json: |
+    {
+      "version": "v1",
+      "sharing": {
+        "timeSlicing": {
+          "resources": [
+            {
+              "name": "nvidia.com/gpu",
+              "renameByDefault": false,
+              "replicas": 4
+            }
+          ]
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: simulated-gpu-device-plugin
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: gpu-device-plugin
+  template:
+    metadata:
+      labels:
+        name: gpu-device-plugin
+    spec:
+      containers:
+      - name: device-plugin
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "[PLUGIN] Loading time-slicing configuration from ConfigMap..."
+            cat /etc/config/slicing-strategy.json
+            echo "[PLUGIN] Virtualizing physical silicon into 4 distinct time-sliced slots..."
+            echo "[PLUGIN] Advertising fractional slots to Kubernetes API server..."
+            sleep 3600
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: gpu-slicing-config
