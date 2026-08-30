@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ray-job-logic
+data:
+  distributed_tensor.py: |
+    import ray
+    import time
+    import socket
+
+    print("[SYSTEM] Connecting to Ray Supercluster...")
+    ray.init(address="ray://ml-supercluster-head-svc:10001")
+
+    @ray.remote
+    def heavy_compute_task(task_id):
+        print(f"[WORKER] Executing Task {task_id} on node {socket.gethostname()}")
+        time.sleep(1)
+        return f"Result {task_id} processed by {socket.gethostname()}"
+
+    print("[SYSTEM] Fracturing workload and distributing 10 parallel tasks...")
+    start_time = time.time()
+    
+    futures = [heavy_compute_task.remote(i) for i in range(1, 11)]
+    
+    results = ray.get(futures)
+    
+    print("\n--- DISTRIBUTED EXECUTION RESULTS ---")
+    for r in results:
+        print(r)
+    print("-------------------------------------")
+    print(f"[METRIC] Total execution time: {round(time.time() - start_time, 2)} seconds")
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ray-execution-job
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+      - name: code
+        configMap:
+          name: ray-job-logic
+      containers:
+      - name: ray-client
+        image: rayproject/ray:2.9.0
+        command: ["/bin/sh", "-c", "python /code/distributed_tensor.py"]
+        volumeMounts:
+        - name: code
+          mountPath: /code
