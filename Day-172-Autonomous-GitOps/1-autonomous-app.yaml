@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: autonomous-ml-api
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: api=stefanprodan/podinfo
+    argocd-image-updater.argoproj.io/api.update-strategy: semver
+    argocd-image-updater.argoproj.io/api.allow-tags: regexp:^6\.0\.[0-9]+$
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/stefanprodan/podinfo.git'
+    path: kustomize
+    targetRevision: master
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
