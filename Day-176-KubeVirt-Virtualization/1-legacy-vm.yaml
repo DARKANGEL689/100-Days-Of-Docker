@@ -1,0 +1,35 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: legacy-app-server
+  namespace: default
+  labels:
+    kubevirt.io/os: linux
+spec:
+  running: true 
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: legacy-app-server
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        resources:
+          requests:
+            memory: 256Mi
+        devices:
+          disks:
+          - name: rootdisk
+            disk:
+              bus: virtio
+          interfaces:
+          - name: default
+            masquerade: {}
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+      - name: rootdisk
+        containerDisk:
+          image: quay.io/kubevirt/cirros-container-disk-demo:v1.1.1
