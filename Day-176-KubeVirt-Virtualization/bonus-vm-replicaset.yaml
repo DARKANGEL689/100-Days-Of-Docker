@@ -1,0 +1,36 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachineInstanceReplicaSet
+metadata:
+  name: legacy-os-fleet
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      kubevirt.io/os-fleet: cirros-nodes
+  template:
+    metadata:
+      labels:
+        kubevirt.io/os-fleet: cirros-nodes
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        resources:
+          requests:
+            memory: 128Mi
+        devices:
+          disks:
+          - name: rootdisk
+            disk:
+              bus: virtio
+          interfaces:
+          - name: default
+            masquerade: {}
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+      - name: rootdisk
+        containerDisk:
+          image: quay.io/kubevirt/cirros-container-disk-demo:v1.1.1
