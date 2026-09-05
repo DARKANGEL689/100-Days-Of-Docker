@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: legacy-app-svc
+  namespace: default
+spec:
+  ports:
+    - port: 22
+      targetPort: 22
+      name: ssh
+  selector:
+    kubevirt.io/domain: legacy-app-server
