@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-unsigned-workload
+  namespace: default
+spec:
+  containers:
+  - name: api
+    image: ttl.sh/darkangel689-rogue:1h
+    command: ["/bin/sh", "-c", "echo '[MALWARE] Executing...'; sleep 3600"]
