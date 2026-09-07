@@ -1,0 +1,25 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-cryptographic-signatures
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: verify-image-origin
+      match:
+        any:
+        - resources:
+            kinds:
+            - Pod
+      verifyImages:
+      - imageReferences:
+        - "ttl.sh/darkangel689-*"
+        mutateDigest: true
+        verifyDigest: true
+        attestors:
+        - entries:
+          - keys:
+              secret:
+                name: cosign-public-key
+                namespace: default
