@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: ml-database-matrix
+  namespace: default
+spec:
+  instances: 3
+  
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.4
+
+  storage:
+    size: 1Gi
+  
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
