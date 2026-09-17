@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: viral-llm-inference
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heavy-ai
+  template:
+    metadata:
+      labels:
+        app: heavy-ai
+    spec:
+      containers:
+      - name: llm-worker
+        image: vllm/vllm-openai:latest
+        command: ["/bin/sh", "-c", "echo '[COMPUTE] Matrix expanded...'; sleep 3600"]
+        resources:
+          requests:
+            cpu: "16"
+            memory: "64Gi"
+            nvidia.com/gpu: "4"
