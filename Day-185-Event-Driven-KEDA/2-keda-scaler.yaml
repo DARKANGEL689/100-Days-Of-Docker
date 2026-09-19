@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: redis-queue-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: ai-batch-worker
+  pollingInterval: 5
+  cooldownPeriod: 30
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  triggers:
+  - type: redis
+    metadata:
+      address: redis-svc:6379
+      listName: ai-job-queue
+      listLength: "5"
