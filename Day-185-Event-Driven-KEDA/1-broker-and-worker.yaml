@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-broker
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: default
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-batch-worker
+  namespace: default
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ai-worker
+  template:
+    metadata:
+      labels:
+        app: ai-worker
+    spec:
+      containers:
+      - name: worker
+        image: redis:alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "[WORKER] AI Batch Processor Online."
+            while true; do
+              # Pop a payload from the Redis queue
+              TASK=$(redis-cli -h redis-svc lpop ai-job-queue)
+              if [ -n "$TASK" ]; then
+                echo "[COMPUTE] Executing deep inference on $TASK..."
+                sleep 2 # Simulating a heavy tensor workload
+              else
+                sleep 2 # Idle wait
+              fi
+            done
