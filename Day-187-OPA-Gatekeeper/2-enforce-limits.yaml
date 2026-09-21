@@ -1,0 +1,10 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLimits
+metadata:
+  name: pods-must-have-limits
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces: ["kube-system", "gatekeeper-system"]
