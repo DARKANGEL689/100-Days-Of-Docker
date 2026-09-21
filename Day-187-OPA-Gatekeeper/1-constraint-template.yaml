@@ -1,0 +1,19 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredlimits
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredLimits
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredlimits
+        
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.resources.limits
+          msg := sprintf("[GATEKEEPER BLOCKED] Container '%v' must have strict CPU/Memory resource limits defined.", [container.name])
+        }
