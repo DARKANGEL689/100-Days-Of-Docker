@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-unbounded-pod
+  namespace: default
+spec:
+  containers:
+  - name: rogue-container
+    image: alpine:latest
+    command: ["sleep", "3600"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: compliant-enterprise-pod
+  namespace: default
+spec:
+  containers:
+  - name: enterprise-container
+    image: alpine:latest
+    command: ["sleep", "3600"]
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "128Mi"
