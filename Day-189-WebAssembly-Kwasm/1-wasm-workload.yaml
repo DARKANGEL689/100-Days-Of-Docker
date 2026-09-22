@@ -1,0 +1,46 @@
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: wasmedge
+handler: wasmedge 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasm-high-performance-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "wasm-api"
+  template:
+    metadata:
+      labels:
+        app: "wasm-api"
+    spec:
+      runtimeClassName: wasmedge
+      containers:
+      - name: wasm-app
+        image: wasmedge/example-wasi-http:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wasm-api-svc
+  namespace: default
+spec:
+  selector:
+    app: "wasm-api"
+  ports:
+    - port: 8080
+      targetPort: 8080
