@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fsdp-source-code
+  namespace: default
+data:
+  train.py: |
+    import os
+    import torch
+    import torch.distributed as dist
+    import torch.nn as nn
+    import torch.optim as optim
+    from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+
+    def setup():
+        dist.init_process_group("gloo") # Using 'gloo' for CPU-based simulation
+        rank = dist.get_rank()
+        world_size = dist.get_world_size()
+        print(f"[SYSTEM] Node Rank {rank}/{world_size} initialized in the distributed ring.")
+        return rank
+
+    class SimpleMatrix(nn.Module):
+        def __init__(self):
+            super(SimpleMatrix, self).__init__()
+            self.net = nn.Sequential(
+                nn.Linear(1000, 1000),
+                nn.ReLU(),
+                nn.Linear(1000, 10)
+            )
+        def forward(self, x):
+            return self.net(x)
+
+    def train():
+        rank = setup()
+        
+        model = SimpleMatrix()
+        sharded_model = FSDP(model)
+        
+        optimizer = optim.SGD(sharded_model.parameters(), lr=0.01)
+        criterion = nn.MSELoss()
+
+        print(f"[RANK {rank}] Sharding complete. Executing distributed tensor propagation...")
+        
+        for epoch in range(3):
+            optimizer.zero_grad()
+            # Generate dummy data
+            inputs = torch.randn(32, 1000)
+            targets = torch.randn(32, 10)
+            
+            outputs = sharded_model(inputs)
+            loss = criterion(outputs, targets)
+            
+            loss.backward()
+            optimizer.step()
+            
+            if rank == 0:
+                print(f"[EPOCH {epoch+1}] Aggregated Cross-Node Loss: {loss.item():.4f}")
+
+        dist.destroy_process_group()
+        print(f"[RANK {rank}] Training complete. Process group destroyed.")
+
+    if __name__ == "__main__":
+        train()
