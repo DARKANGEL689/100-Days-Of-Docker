@@ -1,0 +1,39 @@
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: fsdp-training-matrix
+  namespace: default
+spec:
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+              command: ["python", "/workspace/train.py"]
+              volumeMounts:
+                - name: code-volume
+                  mountPath: /workspace
+          volumes:
+            - name: code-volume
+              configMap:
+                name: fsdp-source-code
+    Worker:
+      replicas: 2
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+              command: ["python", "/workspace/train.py"]
+              volumeMounts:
+                - name: code-volume
+                  mountPath: /workspace
+          volumes:
+            - name: code-volume
+              configMap:
+                name: fsdp-source-code
