@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lora-finetuning-matrix
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: peft-worker
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Installing Hugging Face Transformers & PEFT dependencies..."
+            pip install torch transformers peft > /dev/null 2>&1
+            python /workspace/train_lora.py
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+      volumes:
+      - name: code-volume
+        configMap:
+          name: lora-source-code
