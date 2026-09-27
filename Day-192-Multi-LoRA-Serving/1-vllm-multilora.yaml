@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-multilora-engine
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multilora-engine
+  template:
+    metadata:
+      labels:
+        app: multilora-engine
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+        args:
+          - "--model"
+          - "facebook/opt-125m"
+          - "--enable-lora"
+          - "--max-loras"
+          - "4"
+          - "--max-lora-rank"
+          - "8"
+          - "--gpu-memory-utilization"
+          - "0.85"
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multilora-api-svc
+  namespace: default
+spec:
+  selector:
+    app: multilora-engine
+  ports:
+    - port: 8000
+      targetPort: 8000
