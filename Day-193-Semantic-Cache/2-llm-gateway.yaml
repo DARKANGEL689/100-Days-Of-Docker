@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-source-code
+data:
+  gateway.py: |
+    import time
+    import hashlib
+    import redis
+    from fastapi import FastAPI
+    from pydantic import BaseModel
+
+    app = FastAPI()
+    cache = redis.Redis(host='redis-cache-svc', port=6379, decode_responses=True)
+
+    class PromptPayload(BaseModel):
+        prompt: str
+
+    def simulate_gpu_inference(prompt: str) -> str:
+        # Simulating the time it takes vLLM to autoregressively generate tokens
+        time.sleep(2.0)
+        return f"Generated response for: {prompt}"
+
+    @app.post("/v1/completions")
+    def generate_text(payload: PromptPayload):
+        start_time = time.time()
+        
+        prompt_hash = hashlib.sha256(payload.prompt.encode('utf-8')).hexdigest()
+        
+        cached_response = cache.get(prompt_hash)
+        
+        if cached_response:
+            latency = (time.time() - start_time) * 1000
+            return {
+                "source": "Redis Memory Cache (GPU Bypassed)",
+                "latency_ms": round(latency, 2),
+                "text": cached_response
+            }
+            
+        generated_text = simulate_gpu_inference(payload.prompt)
+        
+        cache.setex(prompt_hash, 3600, generated_text)
+        
+        latency = (time.time() - start_time) * 1000
+        return {
+            "source": "vLLM GPU Engine",
+            "latency_ms": round(latency, 2),
+            "text": generated_text
+        }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-gateway
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: api
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn redis > /dev/null 2>&1
+            uvicorn workspace.gateway:app --host 0.0.0.0 --port 8000
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+  volumes:
+  - name: code-volume
+    configMap:
+      name: gateway-source-code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-gateway-svc
+  namespace: default
+spec:
+  selector:
+    app: gateway
+  ports:
+    - port: 8000
+      targetPort: 8000
