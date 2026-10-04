@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: kubeflow-ml-pipeline-
+  namespace: default
+spec:
+  entrypoint: ml-dag
+  templates:
+  - name: ml-dag
+    dag:
+      tasks:
+      - name: extract-data
+        template: data-extractor
+      
+      - name: train-model
+        dependencies: [extract-data]
+        template: model-trainer
+      
+      - name: evaluate-model
+        dependencies: [train-model]
+        template: model-evaluator
+
+  - name: data-extractor
+    container:
+      image: python:3.9-slim
+      command: ["python", "-c"]
+      args: 
+        - "import time; print('[EXTRACTION] Connecting to Data Warehouse...'); time.sleep(3); print('[EXTRACTION] 10,000 vectors extracted. Passing to Training Node.')"
+
+  - name: model-trainer
+    container:
+      image: python:3.9-slim
+      command: ["python", "-c"]
+      args: 
+        - "import time; print('[TRAINING] Ingesting raw vector data...'); time.sleep(5); print('[TRAINING] FSDP matrices aligned. Model converged at Loss 0.04.')"
+
+  - name: model-evaluator
+    container:
+      image: python:3.9-slim
+      command: ["python", "-c"]
+      args: 
+        - "import time; print('[EVALUATION] Executing validation test suite...'); time.sleep(2); print('[EVALUATION] Accuracy 96.5%. Model approved for production registry.')"
