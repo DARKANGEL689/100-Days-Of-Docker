@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlflow-training-script
+data:
+  train.py: |
+    import time
+    import mlflow
+
+    mlflow.set_tracking_uri("http://mlflow-server-svc:5000")
+    mlflow.set_experiment("Production_LLM_Tuning")
+
+    print("[INIT] Connecting to MLflow Tracking Server...")
+    with mlflow.start_run(run_name="LoRA_Optimization_Run") as run:
+        print(f"[TRACKING] Run ID: {run.info.run_id}")
+        
+        mlflow.log_param("learning_rate", 0.002)
+        mlflow.log_param("batch_size", 32)
+        mlflow.log_param("architecture", "opt-125m-lora")
+        
+        print("[TRAIN] Executing model optimization loop...")
+        for epoch in range(1, 4):
+            loss = 0.5 / epoch
+            acc = 0.8 + (0.05 * epoch)
+            
+            mlflow.log_metric("loss", loss, step=epoch)
+            mlflow.log_metric("accuracy", acc, step=epoch)
+            print(f"Epoch {epoch}: Loss {loss:.4f}, Accuracy {acc:.4f}")
+            time.sleep(2)
+            
+        print("[REGISTRY] Packaging and securing model artifacts...")
+        with open("model_weights.bin", "w") as f:
+            f.write("01010100_TENSOR_MATRIX_LOCKED")
+            
+        mlflow.log_artifact("model_weights.bin", artifact_path="production_models")
+        print("[SUCCESS] Execution tracked. Hyperparameters and artifacts safely stored in MLflow.")
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mlflow-experiment-job
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: trainer
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install mlflow > /dev/null 2>&1
+            python /workspace/train.py
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: mlflow-training-script
