@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ray-source-code
+data:
+  main.py: |
+    import ray
+    import math
+    import random
+    import time
+
+    ray.init(address="ray://ray-matrix-head-svc:10001")
+    print("[INIT] Connected to Ray Distributed Cluster.")
+
+    @ray.remote
+    def monte_carlo_pi_worker(num_samples):
+        inside = 0
+        for _ in range(num_samples):
+            x, y = random.random(), random.random()
+            if math.hypot(x, y) <= 1:
+                inside += 1
+        return inside
+
+    SAMPLES = 5000000
+    WORKERS = 4
+
+    print(f"[COMPUTE] Distributing {SAMPLES * WORKERS} mathematical calculations across Ray workers...")
+    start_time = time.time()
+
+    futures = [monte_carlo_pi_worker.remote(SAMPLES) for _ in range(WORKERS)]
+    
+    results = ray.get(futures)
+
+    total_inside = sum(results)
+    pi_estimate = (total_inside / (SAMPLES * WORKERS)) * 4
+
+    print(f"[RESULT] Pi Estimate: {pi_estimate:.6f}")
+    print(f"[METRIC] Execution Time: {time.time() - start_time:.2f} seconds")
+    print("[SUCCESS] Massive parallelization achieved. Python GIL successfully bypassed.")
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ray-execution-job
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: ray-client
+        image: rayproject/ray:2.9.0
+        command: ["python", "/workspace/main.py"]
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: ray-source-code
