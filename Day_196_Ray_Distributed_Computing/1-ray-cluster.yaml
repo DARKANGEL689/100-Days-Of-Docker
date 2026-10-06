@@ -1,0 +1,41 @@
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: ray-matrix
+  namespace: default
+spec:
+  rayVersion: '2.9.0'
+  headGroupSpec:
+    rayStartParams:
+      dashboard-host: '0.0.0.0'
+    template:
+      spec:
+        containers:
+        - name: ray-head
+          image: rayproject/ray:2.9.0
+          resources:
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+          ports:
+          - containerPort: 6379
+            name: redis
+          - containerPort: 8265
+            name: dashboard
+          - containerPort: 10001
+            name: client
+  workerGroupSpecs:
+  - groupName: cpu-workers
+    replicas: 2
+    minReplicas: 2
+    maxReplicas: 5
+    rayStartParams: {}
+    template:
+      spec:
+        containers:
+        - name: ray-worker
+          image: rayproject/ray:2.9.0
+          resources:
+            limits:
+              cpu: "1"
+              memory: "2Gi"
