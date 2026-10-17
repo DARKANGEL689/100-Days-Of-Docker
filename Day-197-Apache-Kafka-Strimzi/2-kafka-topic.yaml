@@ -1,0 +1,13 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: ai-telemetry-stream
+  namespace: default
+  labels:
+    strimzi.io/cluster: matrix-bus
+spec:
+  partitions: 3
+  replicas: 1
+  config:
+    retention.ms: 7200000
+    segment.bytes: 1073741824
