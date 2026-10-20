@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autonomous-orchestrator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-orchestrator
+  template:
+    metadata:
+      labels:
+        app: ai-orchestrator
+    spec:
+      serviceAccountName: autonomous-ai-agent
+      containers:
+      - name: agent
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install kubernetes > /dev/null 2>&1
+            python /workspace/agent.py
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: ai-agent-source-code
