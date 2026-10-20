@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-agent-source-code
+data:
+  agent.py: |
+    import time
+    from kubernetes import client, config
+    from kubernetes.client.rest import ApiException
+
+    print("[SYSTEM] Booting Autonomous Infrastructure Agent...")
+    
+    config.load_incluster_config()
+    apps_v1 = client.AppsV1Api()
+    core_v1 = client.CoreV1Api()
+    
+    TARGET_DEPLOYMENT = "matrix-web-core"
+    
+    def analyze_cluster_state():
+        print("[AGENT THOUGHT] Scanning default namespace for active architectures...")
+        deployments = apps_v1.list_namespaced_deployment(namespace="default")
+        active_names = [dep.metadata.name for dep in deployments.items]
+        return active_names
+
+    def construct_deployment_manifest():
+        print(f"[AGENT ACTION] Constructing {TARGET_DEPLOYMENT} architecture in memory...")
+        container = client.V1Container(
+            name="nginx-core",
+            image="nginx:alpine",
+            ports=[client.V1ContainerPort(container_port=80)]
+        )
+        template = client.V1PodTemplateSpec(
+            metadata=client.V1ObjectMeta(labels={"app": TARGET_DEPLOYMENT}),
+            spec=client.V1PodSpec(containers=[container])
+        )
+        spec = client.V1DeploymentSpec(
+            replicas=2,
+            template=template,
+            selector=client.V1LabelSelector(match_labels={"app": TARGET_DEPLOYMENT})
+        )
+        deployment = client.V1Deployment(
+            api_version="apps/v1",
+            kind="Deployment",
+            metadata=client.V1ObjectMeta(name=TARGET_DEPLOYMENT),
+            spec=spec
+        )
+        return deployment
+
+    def execute_provisioning():
+        active_deployments = analyze_cluster_state()
+        
+        if TARGET_DEPLOYMENT in active_deployments:
+            print(f"[AGENT RESOLUTION] Objective already met. '{TARGET_DEPLOYMENT}' is active. Idling...")
+        else:
+            print(f"[AGENT RESOLUTION] Discrepancy detected. '{TARGET_DEPLOYMENT}' is missing.")
+            deployment = construct_deployment_manifest()
+            try:
+                print(f"[AGENT EXECUTION] Sending generation request to Kubernetes API Server...")
+                apps_v1.create_namespaced_deployment(namespace="default", body=deployment)
+                print("[SUCCESS] Autonomous provisioning complete. Human intervention bypassed.")
+            except ApiException as e:
+                print(f"[ERROR] API rejection: {e}")
+
+    if __name__ == "__main__":
+        print("--------------------------------------------------")
+        print("DIRECTIVE: Ensure high-availability matrix-web-core is running.")
+        print("--------------------------------------------------")
+        execute_provisioning()
+        
+        while True:
+            time.sleep(3600)
