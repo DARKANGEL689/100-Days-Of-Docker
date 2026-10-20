@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ai-inference-canary
+  namespace: default
+spec:
+  replicas: 5
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: ai-canary
+  template:
+    metadata:
+      labels:
+        app: ai-canary
+    spec:
+      containers:
+      - name: inference-engine
+        image: stefanprodan/podinfo:6.0.0
+        ports:
+        - containerPort: 9898
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {duration: 15s}
+      - setWeight: 60
+      - pause: {duration: 15s}
