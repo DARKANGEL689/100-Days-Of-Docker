@@ -1,0 +1,28 @@
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: global-ai-distribution
+  namespace: default
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: global-matrix-core
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - member-cluster-aws
+        - member-cluster-gcp
+    replicaScheduling:
+      replicaDivisionPreference: Weighted
+      replicaSchedulingType: Divided
+      weightPreference:
+        staticWeightList:
+          - targetCluster:
+              clusterNames:
+                - member-cluster-aws
+            weight: 1
+          - targetCluster:
+              clusterNames:
+                - member-cluster-gcp
+            weight: 1
