@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: global-matrix-core
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: global-core
+  template:
+    metadata:
+      labels:
+        app: global-core
+    spec:
+      containers:
+      - name: api-server
+        image: stefanprodan/podinfo:6.4.0
+        ports:
+        - containerPort: 9898
