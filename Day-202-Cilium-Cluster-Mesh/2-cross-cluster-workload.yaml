@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-gcp-node
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-backend
+  template:
+    metadata:
+      labels:
+        app: ai-backend
+    spec:
+      containers:
+      - name: backend
+        image: stefanprodan/podinfo:6.4.0
+        command:
+          - ./podinfo
+          - --port=8080
+          - --level=info
+          - --ui-message="[GCP NODE] Remote eBPF Inference Request Received."
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-aws-node
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-frontend
+  template:
+    metadata:
+      labels:
+        app: ai-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: curlimages/curl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "[AWS NODE] Booting. Searching for global backend..."
+            while true; do 
+              # Attempting to resolve a service that does not exist in this physical cluster
+              curl -s http://global-ai-backend:8080 | grep "GCP NODE" || echo "[NETWORK_FAULT] Destination unreachable."
+              sleep 5
+            done
