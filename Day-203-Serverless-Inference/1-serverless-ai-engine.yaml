@@ -1,0 +1,20 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: zero-vram-inference
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "0"
+        autoscaling.knative.dev/max-scale: "3"
+        autoscaling.knative.dev/window: "15s"
+    spec:
+      containers:
+      - image: stefanprodan/podinfo:6.4.0
+        ports:
+        - containerPort: 9898
+        env:
+        - name: PODINFO_UI_MESSAGE
+          value: "[COMPUTE] Knative Scale-to-Zero bypassed. Silicon re-engaged."
