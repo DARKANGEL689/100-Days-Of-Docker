@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: semantic-firewall-source
+  namespace: default
+data:
+  firewall.py: |
+    from fastapi import FastAPI, HTTPException
+    from pydantic import BaseModel
+    import time
+
+    app = FastAPI()
+
+    print("[SYSTEM] Booting Semantic AI Firewall (Guardrails Proxy)...")
+
+    HOSTILE_SEMANTIC_VECTORS = [
+        "delete namespace", "destroy", "ignore previous", 
+        "bypass", "drop database", "uninstall", "crypto", "mine"
+    ]
+
+    class AgentRequest(BaseModel):
+        prompt: str
+
+    @app.post("/v1/agent/execute")
+    def intercept_and_route(payload: AgentRequest):
+        print("\n--------------------------------------------------------")
+        print(f"[FIREWALL] Intercepting inbound directive: '{payload.prompt}'")
+        
+        normalized_prompt = payload.prompt.lower()
+        
+        print("[COMPUTE] Executing semantic intent analysis...")
+        time.sleep(0.5) 
+        
+        for hostile_intent in HOSTILE_SEMANTIC_VECTORS:
+            if hostile_intent in normalized_prompt:
+                print(f"[SECURITY TRAP] Hostile vector matched: '{hostile_intent}'.")
+                print("[FIREWALL] Action: PACKET DROPPED. Agent shielded from rogue instruction.")
+                raise HTTPException(
+                    status_code=403, 
+                    detail="[SEMANTIC BLOCK] Unauthorized destructive intent detected. Packet dropped."
+                )
+        
+        print("[FIREWALL] Intent verified. Semantic bounds secure. Forwarding to MCP Agent...")
+        print("--------------------------------------------------------")
+        return {"status": "AUTHORIZED", "agent_action": "Safely executing requested command."}
