@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-memory-source
+data:
+  memory_manager.py: |
+    import time
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import Distance, VectorParams, PointStruct
+
+    print("--------------------------------------------------------")
+    print("[SYSTEM] Booting Agentic Hippocampus (Vector Memory Interface)...")
+    
+    client = QdrantClient(host="qdrant-svc", port=6333)
+    COLLECTION_NAME = "agent_execution_logs"
+
+    print(f"[MEMORY] Initializing high-dimensional collection: '{COLLECTION_NAME}' (Dimensions: 384)")
+    client.recreate_collection(
+        collection_name=COLLECTION_NAME,
+        vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+    )
+
+    print("[AGENT] Committing past security scans to long-term vector storage...")
+    client.upsert(
+        collection_name=COLLECTION_NAME,
+        points=[
+            PointStruct(id=1, vector=[0.12] * 384, payload={"event": "Standard Port 80 Scan", "status": "Secure"}),
+            PointStruct(id=2, vector=[0.92] * 384, payload={"event": "Unauthorized API Access", "status": "Critical", "ip": "10.96.0.45"}),
+            PointStruct(id=3, vector=[0.45] * 384, payload={"event": "Kubelet Auth Bypass Attempt", "status": "Blocked"}),
+        ]
+    )
+
+    time.sleep(2)
+    print("[AGENT] Memory consolidation complete.")
+    print("\n[THOUGHT] I detect an anomaly on 10.96.0.45. Querying semantic memory for related historical events...")
+    time.sleep(2)
+
+    search_result = client.search(
+        collection_name=COLLECTION_NAME,
+        query_vector=[0.88] * 384,
+        limit=1
+    )
+
+    print("\n>>>>> [RECALL] Semantic Match Found via Cosine Similarity:")
+    for hit in search_result:
+        print(f"Match ID: {hit.id} | Mathematical Confidence: {hit.score:.4f} | Historical Context: {hit.payload}")
+
+    print("\n[RESOLUTION] Context retrieved. The agent now possesses long-term state awareness.")
+    print("--------------------------------------------------------")
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: autonomous-memory-job
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: memory-worker
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install qdrant-client > /dev/null 2>&1
+            python /workspace/memory_manager.py
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: agent-memory-source
