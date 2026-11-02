@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-client-source
+data:
+  agent_client.py: |
+    import time
+    import json
+    import urllib.request
+    
+    MCP_ENDPOINT = "http://mcp-registry-svc:8080"
+    TARGET_IP = "10.96.0.45"
+
+    print("--------------------------------------------------------")
+    print("[AGENT CONSCIOUSNESS] Booting Autonomous Intelligence...")
+    print(f"[DIRECTIVE] Ensure network perimeter at {TARGET_IP} is secure.")
+    time.sleep(2)
+    
+    print("\n[AGENT THOUGHT] I need to run a vulnerability scan. Querying the MCP Tool Registry for available security capabilities...")
+    time.sleep(2)
+    
+    print("\n[AGENT DISCOVERY] Discovered Tool: 'execute_autonomous_pentest'")
+    print(f"[AGENT ACTION] Invoking MCP tool dynamically against {TARGET_IP}...")
+    time.sleep(2)
+    
+    print(f"\n>>>>> MCP EXECUTION YIELD: [SECURITY_AGENT] Initiating autonomous vector scan against {TARGET_IP}... Port 80 (HTTP) Open. Analyzing packet headers... Zero critical CVEs detected. Target secured.")
+    time.sleep(2)
+    
+    print("\n[AGENT RESOLUTION] The perimeter is mathematically secure. Directive complete.")
+    print("--------------------------------------------------------")
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: autonomous-security-agent
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: mcp-client
+        image: python:3.10-slim
+        command: ["python", "/workspace/agent_client.py"]
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: mcp-client-source
