@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semantic-firewall
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: semantic-proxy
+  template:
+    metadata:
+      labels:
+        app: semantic-proxy
+    spec:
+      containers:
+      - name: proxy
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn > /dev/null 2>&1
+            uvicorn workspace.firewall:app --host 0.0.0.0 --port 8000
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: semantic-firewall-source
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: semantic-firewall-svc
+  namespace: default
+spec:
+  selector:
+    app: semantic-proxy
+  ports:
+    - port: 8000
+      targetPort: 8000
