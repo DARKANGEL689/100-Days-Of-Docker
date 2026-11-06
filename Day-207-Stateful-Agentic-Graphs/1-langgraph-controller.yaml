@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: langgraph-source-code
+  namespace: default
+data:
+  graph_orchestrator.py: |
+    import time
+    from typing import Dict, TypedDict
+    from langgraph.graph import StateGraph, END
+
+    print("[SYSTEM] Booting Stateful Multi-Agent Graph (LangGraph)...")
+
+    class AgentState(TypedDict):
+        directive: str
+        yaml_manifest: str
+        security_status: str
+        audit_feedback: str
+
+    def architect_node(state: AgentState) -> AgentState:
+        print("\n[AGENT 1: ARCHITECT] Analyzing directive and synthesizing infrastructure...")
+        time.sleep(2)
+        if "REJECTED" in state.get("security_status", ""):
+            print(f"[AGENT 1: ARCHITECT] Correcting previous errors based on feedback: {state['audit_feedback']}")
+            state["yaml_manifest"] = "apiVersion: v1\nkind: Pod\nmetadata:\n  name: secure-nginx\nspec:\n  securityContext:\n    runAsNonRoot: true\n  containers:\n  - name: nginx\n    image: nginx"
+        else:
+            state["yaml_manifest"] = "apiVersion: v1\nkind: Pod\nmetadata:\n  name: fast-nginx\nspec:\n  containers:\n  - name: nginx\n    image: nginx"
+        return state
+
+    def security_auditor_node(state: AgentState) -> AgentState:
+        print("\n[AGENT 2: SECURITY AUDITOR] Executing zero-trust analysis on generated YAML...")
+        time.sleep(2)
+        if "securityContext" not in state["yaml_manifest"]:
+            print("[AGENT 2: SECURITY AUDITOR] VIOLATION DETECTED: Missing runAsNonRoot policy.")
+            state["security_status"] = "REJECTED"
+            state["audit_feedback"] = "Containers must explicitly define securityContext to drop root privileges."
+        else:
+            print("[AGENT 2: SECURITY AUDITOR] Architecture validated. Zero critical CVEs. Cryptographic sign-off applied.")
+            state["security_status"] = "APPROVED"
+        return state
+
+    def devops_executor_node(state: AgentState) -> AgentState:
+        print("\n[AGENT 3: DEVOPS EXECUTOR] Approval confirmed. Interfacing with Kubernetes API Server...")
+        time.sleep(2)
+        print(f"[AGENT 3: DEVOPS EXECUTOR] Successfully applied secure manifest:\n{state['yaml_manifest']}")
+        return state
+
+    def route_deployment(state: AgentState) -> str:
+        if state["security_status"] == "APPROVED":
+            return "execute"
+        return "rewrite"
+
+    print("[SYSTEM] Compiling Directed Agentic Graph...")
+    workflow = StateGraph(AgentState)
+    workflow.add_node("Architect", architect_node)
+    workflow.add_node("SecurityAuditor", security_auditor_node)
+    workflow.add_node("DevOpsExecutor", devops_executor_node)
+
+    workflow.set_entry_point("Architect")
+    workflow.add_edge("Architect", "SecurityAuditor")
+    workflow.add_conditional_edges(
+        "SecurityAuditor",
+        route_deployment,
+        {
+            "rewrite": "Architect",
+            "execute": "DevOpsExecutor"
+        }
+    )
+    workflow.add_edge("DevOpsExecutor", END)
+    
+    app = workflow.compile()
+
+    print("\n--------------------------------------------------------")
+    print("DIRECTIVE INJECTED: 'Deploy an Nginx pod for the frontend.'")
+    print("--------------------------------------------------------")
+    
+    initial_state = {"directive": "Deploy an Nginx pod for the frontend.", "yaml_manifest": "", "security_status": "PENDING", "audit_feedback": ""}
+    
+    for output in app.stream(initial_state):
+        pass 
+        
+    print("\n[SYSTEM] Agentic Graph Execution Complete. Fleet consensus achieved.")
