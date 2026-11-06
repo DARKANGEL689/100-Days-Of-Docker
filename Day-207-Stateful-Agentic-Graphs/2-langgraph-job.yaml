@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: multi-agent-orchestration
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: langgraph-engine
+        image: python:3.11-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Installing LangGraph SDK..."
+            pip install langgraph > /dev/null 2>&1
+            python /workspace/graph_orchestrator.py
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: langgraph-source-code
