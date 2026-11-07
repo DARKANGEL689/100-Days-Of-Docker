@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matrix-hardware-dashboard
+  namespace: default
+  labels:
+    grafana_dashboard: "1"
+data:
+  ai-matrix-telemetry.json: |
+    {
+      "title": "Matrix Core: Hardware & AI Compute",
+      "tags": ["ai", "victus", "compute"],
+      "timezone": "browser",
+      "refresh": "5s",
+      "schemaVersion": 30,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "AI Inference Engine CPU Saturation",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "rate(container_cpu_usage_seconds_total{namespace=\"default\", pod=~\"ai-inference-engine.*\"}[1m])",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "AI Inference Engine Memory (VRAM) Allocation",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "container_memory_working_set_bytes{namespace=\"default\", pod=~\"ai-inference-engine.*\"}",
+              "legendFormat": "{{pod}}",
+              "refId": "B"
+            }
+          ]
+        }
+      ]
+    }
