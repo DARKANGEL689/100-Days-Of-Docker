@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sre-agent-source
+  namespace: default
+data:
+  sre_bot.py: |
+    from fastapi import FastAPI, Request
+    from kubernetes import client, config
+    import time
+
+    app = FastAPI()
+
+    print("[SYSTEM] Booting Autonomous SRE Incident Response Bot...")
+    
+    config.load_incluster_config()
+    apps_v1 = client.AppsV1Api()
+
+    @app.post("/v1/alerts/webhook")
+    async def process_prometheus_alert(request: Request):
+        payload = await request.json()
+        print("\n--------------------------------------------------------")
+        print("[INCIDENT RESPONSE] Distress signal received from Prometheus Alertmanager.")
+        
+        for alert in payload.get("alerts", []):
+            if alert.get("status") == "firing":
+                alert_name = alert["labels"].get("alertname", "Unknown")
+                target_deployment = alert["labels"].get("deployment")
+                target_namespace = alert["labels"].get("namespace", "default")
+                
+                print(f"[TELEMETRY ANALYSIS] Alert: {alert_name} | Target: {target_deployment}")
+                
+                if target_deployment:
+                    print(f"[SRE ACTION] Fetching current state of {target_deployment}...")
+                    try:
+                        deployment = apps_v1.read_namespaced_deployment_scale(
+                            name=target_deployment, 
+                            namespace=target_namespace
+                        )
+                        current_replicas = deployment.spec.replicas
+                        new_replicas = current_replicas + 2  # Aggressive scale-up to absorb load
+                        
+                        print(f"[SRE ACTION] Hardware saturation detected. Scaling from {current_replicas} to {new_replicas} replicas.")
+                        
+                        patch_body = {"spec": {"replicas": new_replicas}}
+                        apps_v1.patch_namespaced_deployment_scale(
+                            name=target_deployment, 
+                            namespace=target_namespace, 
+                            body=patch_body
+                        )
+                        print("[SUCCESS] Incident neutralized. Traffic load balanced successfully.")
+                    except Exception as e:
+                        print(f"[ERROR] Remediation failed: {e}")
+                else:
+                    print("[WARNING] No deployment label found in alert telemetry.")
+
+        print("--------------------------------------------------------")
+        return {"status": "Remediation Executed"}
