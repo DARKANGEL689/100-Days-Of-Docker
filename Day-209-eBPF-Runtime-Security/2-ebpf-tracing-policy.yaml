@@ -1,0 +1,22 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: enforce-immutable-execution
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: ingress-core
+  kprobes:
+  - call: "sys_execve"
+    syscall: true
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "In"
+        values:
+        - "/bin/bash"
+        - "/bin/sh"
+        - "/usr/bin/curl"
+      matchActions:
+      - action: Sigkill
