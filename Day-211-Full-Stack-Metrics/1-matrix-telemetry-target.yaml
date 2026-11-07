@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-inference-engine
+  namespace: default
+  labels:
+    app: inference-engine
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: inference-engine
+  template:
+    metadata:
+      labels:
+        app: inference-engine
+    spec:
+      containers:
+      - name: api
+        image: stefanprodan/podinfo:6.4.0
+        command: ["./podinfo", "--port=9898", "--level=info"]
+        ports:
+        - containerPort: 9898
+          name: http
+        resources:
+          requests:
+            cpu: "20m"
+            memory: "64Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-inference-svc
+  namespace: default
+  labels:
+    app: inference-engine
+spec:
+  selector:
+    app: inference-engine
+  ports:
+    - port: 9898
+      targetPort: 9898
+      name: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-inference-monitor
+  namespace: default
+  labels:
+    release: prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: inference-engine
+  endpoints:
+  - port: http
+    interval: 10s
+    path: /metrics
