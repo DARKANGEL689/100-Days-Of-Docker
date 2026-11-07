@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resilient-core
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: resilient-core
+  template:
+    metadata:
+      labels:
+        app: resilient-core
+    spec:
+      containers:
+      - name: core-api
+        image: stefanprodan/podinfo:6.4.0
+        ports:
+        - containerPort: 9898
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: resilient-core-svc
+  namespace: default
+spec:
+  selector:
+    app: resilient-core
+  ports:
+    - port: 9898
+      targetPort: 9898
