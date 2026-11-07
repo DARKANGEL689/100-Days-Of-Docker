@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-agent-source
+data:
+  agent.py: |
+    import time
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    from opentelemetry.sdk.resources import Resource
+
+    print("[SYSTEM] Booting OpenTelemetry-Instrumented Agent...")
+
+    resource = Resource(attributes={"service.name": "autonomous-security-agent"})
+    provider = TracerProvider(resource=resource)
+    
+    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger-collector:4318/v1/traces"))
+    provider.add_span_processor(processor)
+    trace.set_tracer_provider(provider)
+
+    tracer = trace.get_tracer("agent.orchestrator")
+
+    def execute_mcp_tool():
+        with tracer.start_as_current_span("mcp.tool_execution") as span:
+            span.set_attribute("tool.name", "network_scan")
+            print("[AGENT] Executing MCP Tool: network_scan...")
+            time.sleep(1.5) # Simulating physical execution latency
+            span.set_attribute("tool.status", "success")
+
+    def query_vector_memory():
+        with tracer.start_as_current_span("qdrant.semantic_search") as span:
+            span.set_attribute("db.system", "qdrant")
+            span.set_attribute("query.dimensions", 384)
+            print("[AGENT] Querying Vector Memory for historical context...")
+            time.sleep(0.8) # Simulating database retrieval latency
+
+    def agent_react_loop():
+        with tracer.start_as_current_span("agent.react_loop") as span:
+            span.set_attribute("agent.directive", "Audit internal network")
+            print("[AGENT] Starting ReAct Loop...")
+            
+            with tracer.start_as_current_span("llm.thought_generation"):
+                time.sleep(1.2) # Simulating LLM token generation latency
+                print("[LLM] Analyzing directive...")
+            
+            query_vector_memory()
+            execute_mcp_tool()
+            
+            with tracer.start_as_current_span("llm.final_synthesis"):
+                time.sleep(1.0)
+                print("[LLM] Synthesizing final execution report.")
+
+    if __name__ == "__main__":
+        agent_react_loop()
+        provider.force_flush()
+        print("[SUCCESS] Agent execution complete. OpenTelemetry span tree pushed to Jaeger.")
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: otel-agent-job
+  namespace: default
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: agent
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp > /dev/null 2>&1
+            python /workspace/agent.py
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: otel-agent-source
