@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-inference-worker
+  namespace: default
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ai-worker
+  template:
+    metadata:
+      labels:
+        app: ai-worker
+    spec:
+      containers:
+      - name: worker
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args: ["echo '[WORKER] Booted. Awaiting telemetry...'; sleep 3600"]
