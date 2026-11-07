@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autonomous-sre-agent
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sre-patch-role
+  namespace: default
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments", "deployments/scale"]
+  verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sre-patch-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: autonomous-sre-agent
+  namespace: default
+roleRef:
+  kind: Role
+  name: sre-patch-role
+  apiGroup: rbac.authorization.k8s.io
