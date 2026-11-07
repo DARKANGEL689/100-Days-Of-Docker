@@ -1,0 +1,33 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: matrix-pod-assassin
+  namespace: default
+spec:
+  action: pod-kill
+  mode: random-one
+  duration: '60s'
+  selector:
+    labelSelectors:
+      app: resilient-core
+  scheduler:
+    cron: '@every 15s'
+---
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: matrix-latency-injection
+  namespace: default
+spec:
+  action: delay
+  mode: all
+  selector:
+    labelSelectors:
+      app: resilient-core
+  delay:
+    latency: '200ms'
+    correlation: '100'
+    jitter: '0ms'
+  duration: '60s'
+  scheduler:
+    cron: '@every 30s'
