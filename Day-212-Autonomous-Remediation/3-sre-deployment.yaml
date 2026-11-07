@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-api-core
+  namespace: default
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: api-core
+  template:
+    metadata:
+      labels:
+        app: api-core
+    spec:
+      containers:
+      - name: api
+        image: stefanprodan/podinfo:6.4.0
+        ports:
+        - containerPort: 9898
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autonomous-sre-bot
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sre-bot
+  template:
+    metadata:
+      labels:
+        app: sre-bot
+    spec:
+      serviceAccountName: autonomous-sre-agent
+      containers:
+      - name: bot
+        image: python:3.10-slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install fastapi uvicorn kubernetes > /dev/null 2>&1
+            uvicorn workspace.sre_bot:app --host 0.0.0.0 --port 5000
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: code-volume
+          mountPath: /workspace
+      volumes:
+      - name: code-volume
+        configMap:
+          name: sre-agent-source
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sre-webhook-svc
+  namespace: default
+spec:
+  selector:
+    app: sre-bot
+  ports:
+    - port: 5000
+      targetPort: 5000
