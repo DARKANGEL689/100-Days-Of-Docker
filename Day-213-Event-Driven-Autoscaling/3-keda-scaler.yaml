@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ai-worker-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: ai-inference-worker
+  pollingInterval: 5     
+  cooldownPeriod: 30      
+  minReplicaCount: 0      
+  maxReplicaCount: 15     
+  triggers:
+  - type: redis
+    metadata:
+      address: redis-queue-svc.default.svc.cluster.local:6379
+      listName: ai_task_queue
+      listLength: "5"
