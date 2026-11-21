@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: attested-ai-agent
+  namespace: default
+  labels:
+    matrix.role: autonomous-agent
+spec:
+  serviceAccountName: autonomous-agent-sa
+  containers:
+  - name: agent
+    image: ghcr.io/spiffe/spire-agent:1.11.2
+    command: ["/bin/sh", "-c", "sleep 3600"]
+    volumeMounts:
+    - name: spiffe-workload-api
+      mountPath: /spiffe-workload-api
+      readOnly: true
+  volumes:
+  - name: spiffe-workload-api
+    csi:
+      driver: "csi.spiffe.io"
+      readOnly: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-imposter-pod
+  namespace: default
+  labels:
+    matrix.role: untrusted-guest
+spec:
+  containers:
+  - name: imposter
+    image: ghcr.io/spiffe/spire-agent:1.11.2
+    command: ["/bin/sh", "-c", "sleep 3600"]
+    volumeMounts:
+    - name: spiffe-workload-api
+      mountPath: /spiffe-workload-api
+      readOnly: true
+  volumes:
+  - name: spiffe-workload-api
+    csi:
+      driver: "csi.spiffe.io"
+      readOnly: true
